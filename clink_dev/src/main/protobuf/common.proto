@@ -1,0 +1,81 @@
+syntax = "proto3";
+package perception_feature.proto;
+//option cc_enable_arenas = true;
+message BytesList {
+  repeated bytes value = 1;
+}
+message FloatList {
+  repeated float value = 1 [packed = true];
+}
+message DoubleList {
+  repeated double value = 1 [packed = true];
+}
+message Int64List {
+  repeated int64 value = 1 [packed = true];
+}
+message IntList {
+  repeated int32 value = 1 [packed = true];
+}
+message BoolList {
+  repeated bool value = 1 [packed = true];
+}
+message Record{
+  oneof kind {
+    BytesList bytes_list = 1;
+    BoolList bool_list = 2;
+    IntList int_list = 3;
+    Int64List int64_list = 4;
+    FloatList float_list = 5;
+    DoubleList double_list = 6;
+    IVRecordList iv_list = 7;
+  }
+}
+enum DataType {
+  RESERVED = 0;
+  DT_STRING = 1;
+  DT_BOOL = 2;
+  DT_INT32 = 3;
+  DT_INT64 = 4;
+  DT_FLOAT = 5;
+  DT_DOUBLE = 6;
+  DT_IV = 7;
+}
+
+
+message FeatureRecord{
+  DataType data_type = 1 ;
+  repeated bytes bytes_list = 2 ;
+  repeated bool bool_list = 3 [packed = true];
+  repeated int32 int_list = 4 [packed = true];
+  repeated int64 int64_list = 5 [packed = true];
+  repeated float float_list = 6 [packed = true];
+  repeated double double_list = 7 [packed = true];
+  repeated IVRecordEntry iv_list = 8;
+}
+
+message RecordEntry{
+  string key = 1;
+  Record value = 2;
+}
+//index value record
+message IVRecordEntry{
+  int64 index = 1;
+  Record value = 2;
+}
+//index value record
+message IVRecordList{
+  repeated IVRecordEntry iv_record = 1;
+}
+enum OutputFormat{
+  OUT_RESERVED = 0;
+  OUT_LIBSVM = 1;
+  OUT_CSV = 2;
+  OUT_KV = 3;
+  OUT_IV = 4;
+}
+enum FeatureType{
+  TYPE_RESERVED = 0;
+  CONTINUOUS = 1; //连续特征
+  DISCRETE = 2;//离散特征
+  VECTOR=3;// 向量特征
+}

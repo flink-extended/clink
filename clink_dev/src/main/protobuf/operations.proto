@@ -1,0 +1,25 @@
+syntax = "proto3";
+import public "com.feature.common.proto";
+package perception_feature.proto;
+//option cc_enable_arenas = true;
+message Features {
+  // Map from feature name to feature.
+  map<string, Record> feature_map = 1;
+}
+
+message Transform{
+  string formula = 1;
+  repeated RecordEntry params = 2 ;
+}
+message Operation{
+  repeated string input_features = 1;
+  string output_feature = 2;
+  int32 feature_size = 3;
+  FeatureType output_feature_type = 4;//输出特征类型 ：离散特征/连续特征
+  repeated  Transform transform = 5;
+}
+message OperationList{
+  string version = 1;
+  OutputFormat output_format = 2;
+  repeated Operation operation = 3;
+}
