@@ -15,17 +15,13 @@ import org.apache.flink.types.Row;
 import perception_feature.proto.Common;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public class BucketParser extends BaseStageParser {
 
     @Override
     public PipelineStageBase parseJsonToPipelineStage(JSONObject obj) {
-        String params = obj.get("params").toString();
-        String extraParams = obj.getOrDefault("extraParams", new HashMap<>()).toString();
-        Params opParams = new Params().fromJson(params);
-        opParams.merge(new Params().fromJson(extraParams));
+        Params opParams = this.genParams(obj);
         return new QuantileDiscretizer(opParams);
     }
 

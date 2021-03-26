@@ -18,15 +18,17 @@ import java.io.FileReader;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.feature.stageparser.BaseStageParser.STAGE_PARSERS;
+//import static com.feature.stageparser.BaseStageParser.STAGE_PARSERS;
 import static org.apache.commons.io.IOUtils.readLines;
 
 public class FeatureEngineeringUtils {
 
-    public static PipelineStageBase<?> parseJsonToPipelineStage(JSONObject obj) {
-        String opName = ((String) obj.get("operName")).toUpperCase();
-        BaseStageParser parser = STAGE_PARSERS.get(opName);
-        return parser.parseJsonToPipelineStage(obj);
+    public static PipelineStageBase<?> parseJsonToPipelineStage(JSONObject obj) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+        String opName = ((String) obj.get("operName")).toLowerCase();
+        opName = opName.substring(0, 1).toUpperCase() + opName.substring(1);
+        //        BaseStageParser parser = STAGE_PARSERS.get(opName);
+        //        return parser.parseJsonToPipelineStage(obj);
+        return BaseStageParser.parseJsonToPipelineWithName(obj, opName + "Parser");
     }
 
     public static String getJsonFromFilePath(FilePath path) {

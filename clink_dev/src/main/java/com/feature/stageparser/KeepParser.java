@@ -2,11 +2,10 @@ package com.feature.stageparser;
 
 import com.alibaba.alink.pipeline.PipelineStageBase;
 import com.alibaba.alink.pipeline.sql.Select;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.feature.protoparser.BaseOperatorBuilder;
+import com.feature.protoparser.KeepBuilder;
 import com.feature.protoparser.OperationBuilder;
-import com.feature.protoparser.UdfBuilder;
 import com.googlecode.protobuf.format.JsonFormat;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.ml.api.misc.param.Params;
@@ -15,7 +14,7 @@ import org.apache.flink.types.Row;
 
 import java.util.List;
 
-public class UdfParser extends BaseStageParser {
+public class KeepParser extends BaseStageParser {
 
     @Override
     public PipelineStageBase parseJsonToPipelineStage(JSONObject obj) {
@@ -31,10 +30,7 @@ public class UdfParser extends BaseStageParser {
         String outputCol = params.getStringArray("outputCols")[0];
         OperationBuilder operation = new OperationBuilder(outputCol, 1, 1);
         operation.addInputFeatures(inputCol);
-        BaseOperatorBuilder operator =
-                new UdfBuilder(
-                        JSON.parseObject(params.toJson())
-                                .getString("clause")); // avoid GsonBuilder's not setLenient issue
+        BaseOperatorBuilder operator = new KeepBuilder(inputCol);
         operation.addOperator(operator.getBuiltOperator());
 
         return new JsonFormat().printToString(operation.getBuiltOperation());

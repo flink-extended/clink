@@ -1,5 +1,6 @@
 package com.feature;
 
+import com.feature.stageparser.BaseStageParser;
 import org.apache.flink.api.common.functions.RichGroupReduceFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.alibaba.alink.pipeline.ModelExporterUtils.loadStagesFromPipelineModel;
-import static com.feature.stageparser.BaseStageParser.STAGE_PARSERS;
+//import static com.feature.stageparser.BaseStageParser.STAGE_PARSERS;
 
 
 public class FeatureEngineeringTransferOp extends BatchOperator<FeatureEngineeringTransferOp>
@@ -51,7 +52,8 @@ public class FeatureEngineeringTransferOp extends BatchOperator<FeatureEngineeri
                     Tuple3<PipelineStageBase<?>, TableSchema, List<Row>> t3 = stages.get(i);
 //                    collector.collect(Row.of(STAGE_PARSERS.get(t3.f0.getClass().toString()).serializeModelToJson(t3)
 //                            + (i == stages.size() - 1 ? "" : ",")));
-                    collector.collect(Row.of(STAGE_PARSERS.get(t3.f0.getClass().toString()).serializeModelToJson(t3)));
+//                    collector.collect(Row.of(STAGE_PARSERS.get(t3.f0.getClass().toString()).serializeModelToJson(t3)));
+                    collector.collect(Row.of(BaseStageParser.serializeModelToJsonWithName(t3, t3.f0.getParams().getString("parserName"))));
                 }
             }
         });

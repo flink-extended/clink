@@ -19,7 +19,7 @@
 			}
 		},
 		{
-			"operName": "onehotencoder",
+			"operName": "onehot",
 	        "params": {
 				"encode": "INDEX",
 				"dropLast": "true",
@@ -32,7 +32,7 @@
 			}
 		},
 		{
-			"operName": "onehotencoder",
+			"operName": "onehot",
 	        "params": {
 				"encode": "ASSEMBLED_VECTOR",
 				"dropLast": "true",
@@ -54,7 +54,16 @@
 			}
 		},
 		{
-			"operName": "vectorassembler",
+			"operName": "keep",
+			"params": {
+				"clause": "KEEP",
+				"handleInvalid": "KEEP",
+				"selectedCols": "[C18]",
+				"outputCols": "[C18]"
+			}
+		},
+		{
+			"operName": "tovector",
 			 "params": {
 				"selectedCols": "[C19]",
 				"outputCol": "C19_vec"
