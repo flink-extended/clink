@@ -1,24 +1,24 @@
-id,Text
-click,Num
-dt,Cat
-C1,Cat
-banner_pos,Num
-site_id,Cat
-site_domain,Cat
-site_category,Cat
-app_id,Cat
-app_domain,Cat
-app_category,Cat
-device_id,Cat
-device_ip,Text
-device_model,Cat
-device_type,Cat
-device_conn_type,Cat
-C14,Num
-C15,Num
-C16,Num
-C17,Num
-C18,Num
-C19,Num
-C20,Num
-C21,Num
+id string
+click int
+dt string
+C1 string
+banner_pos int
+site_id string
+site_domain string
+site_stringegory string
+app_id string
+app_domain string
+app_stringegory string
+device_id string
+device_ip string
+device_model string
+device_type string
+device_conn_type string
+C14 int
+C15 int
+C16 int
+C17 int
+C18 int
+C19 int
+C20 int
+C21 int

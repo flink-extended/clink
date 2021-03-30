@@ -95,7 +95,7 @@ public class FeatureEngineeringUtils {
         reader.lines()
                 .forEach(
                         row -> {
-                            String[] colSpecArray = row.trim().split(",");
+                            String[] colSpecArray = row.trim().split(" ");
                             ColumnSpecBuilder colSpecBuilder =
                                     new ColumnSpecBuilder(
                                             colIndex.getAndIncrement(),

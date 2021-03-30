@@ -137,6 +137,12 @@
             <artifactId>aws-java-sdk</artifactId>
             <version>1.11.884</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/args4j/args4j -->
+        <dependency>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+            <version>2.33</version>
+        </dependency>
         <!--        <dependency>-->
 <!--            <groupId>org.apache.flink</groupId>-->
 <!--            <artifactId>flink-s3-fs-hadoop</artifactId>-->

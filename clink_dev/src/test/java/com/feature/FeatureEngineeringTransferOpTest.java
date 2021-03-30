@@ -105,11 +105,11 @@ class FeatureEngineeringTransferOpTest {
         System.out.printf(String.format("#####Conf tgz file: %s", confTgzFile));
 
         /** Upload to s3 cluster */
-        String accessKey = "yourId";
-        String secretKey = "yourPasswd";
+        String accessKey = "yourAccessKey";
+        String secretKey = "yourSecret";
         String endPoint = "yourEndPoint";
-        String bucketName = "test";
-        String s3Key = "test_clink.tgz";
+        String bucketName = "yourBucket";
+        String s3Key = "yourKey";
         S3Handler.initS3Client(accessKey, secretKey, endPoint);
         S3Handler.uploadFile(bucketName, s3Key, confTgzFile);
 

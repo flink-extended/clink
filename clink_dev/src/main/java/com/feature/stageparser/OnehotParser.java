@@ -40,7 +40,7 @@ public class OnehotParser extends BaseStageParser {
         Map<Integer, Long> binMap = modelData.modelData.tokenNumber;
         Boolean indexOnly = params.getBool("indexOnly");
         OperationBuilder operation =
-                new OperationBuilder(outputCol, indexOnly ? 1 : binMap.size(), indexOnly ? 1 : 2);
+                new OperationBuilder(outputCol, indexOnly ? 1 : binMap.size() + 1, indexOnly ? 1 : 2);  // featureSize including "Other" category.
         operation.addInputFeatures(inputCol);
         Common.BytesList.Builder binList = Common.BytesList.newBuilder();
         Object[] tokenArray =

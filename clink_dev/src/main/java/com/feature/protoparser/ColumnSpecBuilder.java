@@ -21,23 +21,16 @@ public class ColumnSpecBuilder {
 
 
 /**
- * Column type name mapping for XDML
+ * Column type name mapping
  */
 class ColTypePbMap {
-
-    public final String Text = "Text";
-    public final String Num = "Num";
-    public final String Cat = "Cat";
-    public final String MultiCat = "MultiCat";
-    public final String Key = "Key";
-    public final String Label = "Label";
-    public final String Other = "Other";
 
     public static Integer getIntType(String strType) {
 
         Integer intType = 1;
         switch (strType) {
-            case "Num":
+            case "int":
+            case "float":
                 intType = 3;
         }
 

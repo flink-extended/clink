@@ -23,6 +23,7 @@ import static com.alibaba.alink.pipeline.ModelExporterUtils.loadStagesFromPipeli
 
 public class FeatureEngineeringTransferOp extends BatchOperator<FeatureEngineeringTransferOp>
         implements FeatureEngineeringTransferParams<FeatureEngineeringTransferOp> {
+    
     public FeatureEngineeringTransferOp() {
         this(new Params());
     }
