@@ -1,6 +1,7 @@
 package run;
 
 import com.alibaba.alink.common.io.filesystem.FilePath;
+import com.alibaba.alink.common.io.filesystem.FlinkFileSystem;
 import com.alibaba.alink.operator.batch.BatchOperator;
 import com.alibaba.alink.operator.batch.source.CsvSourceBatchOp;
 import com.alibaba.alink.pipeline.Pipeline;
@@ -13,7 +14,6 @@ import com.feature.FeatureEngineeringUtils;
 import com.feature.common.FileHandler;
 import com.feature.common.S3Handler;
 import com.feature.common.TarHandler;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.types.Row;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -21,7 +21,6 @@ import org.kohsuke.args4j.Option;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -30,6 +29,11 @@ import static com.feature.FeatureEngineeringUtils.parseJsonToPipelineStage;
 public class runFeatureEngineeringOffline {
     @Option(name = "--inputDataPath", usage = "Input data's file path for feature engineering")
     private String inputDataPath;
+
+    @Option(
+            name = "--isFirstLineHeader",
+            usage = "Flag for check if data's first line is header line")
+    private final boolean isFirstLineHeader = false;
 
     @Option(
             name = "--inputSchemaPath",
@@ -61,6 +65,7 @@ public class runFeatureEngineeringOffline {
     public void Main(String[] args) throws Exception {
         CmdLineParser parser = new CmdLineParser(this);
         parser.parseArgument(args);
+
         StringJoiner schemaBuilder = new StringJoiner(",");
         BufferedReader reader = new BufferedReader(new FileReader(inputSchemaPath));
         try {
@@ -75,11 +80,22 @@ public class runFeatureEngineeringOffline {
             reader.close();
         }
 
-        BatchOperator data =
-                new CsvSourceBatchOp()
-                        .setIgnoreFirstLine(true)
-                        .setFilePath(inputDataPath)
-                        .setSchemaStr(schemaBuilder.toString());
+        BatchOperator data;
+
+        if (inputDataPath.startsWith("hdfs://")) {
+            data =
+                    new CsvSourceBatchOp()
+                            .setIgnoreFirstLine(isFirstLineHeader)
+                            .setFilePath(
+                                    new FilePath(inputDataPath, new FlinkFileSystem(inputDataPath)))
+                            .setSchemaStr(schemaBuilder.toString());
+        } else {
+            data =
+                    new CsvSourceBatchOp()
+                            .setIgnoreFirstLine(isFirstLineHeader)
+                            .setFilePath(inputDataPath)
+                            .setSchemaStr(schemaBuilder.toString());
+        }
 
         Object obj =
                 JSON.parse(FeatureEngineeringUtils.getJsonFromFilePath(new FilePath(taskConfPath)));
