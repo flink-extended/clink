@@ -33,7 +33,10 @@ public class runFeatureEngineeringOffline {
     @Option(
             name = "--isFirstLineHeader",
             usage = "Flag for check if data's first line is header line")
-    private final boolean isFirstLineHeader = false;
+    private boolean isFirstLineHeader = false;
+
+    @Option(name = "--columnSep", usage = "Column delimiter")
+    private String columnSep = ",";
 
     @Option(
             name = "--inputSchemaPath",
@@ -86,6 +89,7 @@ public class runFeatureEngineeringOffline {
             data =
                     new CsvSourceBatchOp()
                             .setIgnoreFirstLine(isFirstLineHeader)
+                            .setFieldDelimiter(columnSep)
                             .setFilePath(
                                     new FilePath(inputDataPath, new FlinkFileSystem(inputDataPath)))
                             .setSchemaStr(schemaBuilder.toString());
@@ -93,6 +97,7 @@ public class runFeatureEngineeringOffline {
             data =
                     new CsvSourceBatchOp()
                             .setIgnoreFirstLine(isFirstLineHeader)
+                            .setFieldDelimiter(columnSep)
                             .setFilePath(inputDataPath)
                             .setSchemaStr(schemaBuilder.toString());
         }
