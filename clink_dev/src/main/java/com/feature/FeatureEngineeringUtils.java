@@ -7,6 +7,7 @@ import com.feature.protoparser.*;
 import com.feature.stageparser.BaseStageParser;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
+import org.apache.flink.api.java.DataSet;
 import org.apache.flink.core.fs.FSDataInputStream;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.types.Row;
@@ -48,15 +49,37 @@ public class FeatureEngineeringUtils {
             throws InvalidProtocolBufferException {
         OperationListBuilder operListBuilder = new OperationListBuilder("v1.0", 1);
         operConfList.forEach(
-                i -> {
+                x -> {
                     try {
                         Operations.Operation.Builder structBuilder =
                                 Operations.Operation.newBuilder();
-                        JsonFormat.parser().merge(i.toString(), structBuilder);
+                        JsonFormat.parser().merge(x.toString(), structBuilder);
                         operListBuilder.addOperation(structBuilder.build());
                     } catch (InvalidProtocolBufferException e) {
                         e.printStackTrace();
                     }
+                });
+
+        return JsonFormat.printer()
+                .includingDefaultValueFields()
+                .preservingProtoFieldNames()
+                .print(operListBuilder.getBuiltOperationList());
+    }
+
+    public static String genOperListJsonStringOp(DataSet<Row> operConfList)
+            throws InvalidProtocolBufferException {
+        OperationListBuilder operListBuilder = new OperationListBuilder("v1.0", 1);
+        operConfList.map(
+                x -> {
+                    try {
+                        Operations.Operation.Builder structBuilder =
+                                Operations.Operation.newBuilder();
+                        JsonFormat.parser().merge(x.toString(), structBuilder);
+                        operListBuilder.addOperation(structBuilder.build());
+                    } catch (InvalidProtocolBufferException e) {
+                        e.printStackTrace();
+                    }
+                    return x;
                 });
 
         return JsonFormat.printer()
