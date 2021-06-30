@@ -5,12 +5,16 @@ import com.alibaba.alink.common.io.filesystem.FlinkFileSystem;
 import com.alibaba.alink.operator.batch.BatchOperator;
 import com.alibaba.alink.operator.batch.sink.TextSinkBatchOp;
 import com.alibaba.alink.operator.batch.source.CsvSourceBatchOp;
+import com.alibaba.alink.operator.stream.StreamOperator;
+import com.alibaba.alink.operator.stream.sink.KafkaSinkStreamOp;
+import com.alibaba.alink.operator.stream.source.KafkaSourceStreamOp;
 import com.alibaba.alink.pipeline.Pipeline;
 import com.alibaba.alink.pipeline.PipelineModel;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.feature.common.FileHandler;
+import com.feature.common.PluginHandler;
 import com.feature.common.S3Handler;
 import com.feature.common.TarHandler;
 import org.apache.flink.ml.api.misc.param.Params;
@@ -55,12 +59,14 @@ class FeatureEngineeringTransferOpTest {
         StringBuilder sbd = new StringBuilder();
 
         String tmpConfDir = FileHandler.getTempDir("/tmp/conf");
-        String endPoint = "yourS3EndPoint";
-        String bucketName = "yourS3BucketName";
-        String s3Key = "yourS3Key";
-        String s3AccessKey = "yourS3AccessKey";
-        String s3AccessSecret = "yourS3AccessSecret";
+        String endPoint = "your_endpoint";
+        String bucketName = "your_bucket";
+        String s3Key = "your_s3_key";
+        String s3AccessKey = "your_s3_user_account";
+        String s3AccessSecret = "your_s3_password";
         String outputPath = "yourOutputPath";
+
+        new PluginHandler().pluginPrepare();
 
         for (int i = 0; i < COL_NAMES.length; i++) {
             if (i != 0) {
@@ -75,7 +81,18 @@ class FeatureEngineeringTransferOpTest {
                         .setFilePath(dataPath)
                         .setSchemaStr(sbd.toString());
 
+        StreamOperator streamInput =
+                new KafkaSourceStreamOp()
+                        .setPluginVersion("0.11")
+                        .setBootstrapServers("yourInputKafkaBroker")
+                        .setTopic("yourInputKafkaTopic")
+                        .setGroupId("yourInputKafkaGroup")
+                        .setStartupMode("yourKafkaStartupMode");
+
         String taskMode = "transform";
+        String outputDataType = "stream";
+        String outputKafkaTopic = "yourOutputKafkaTopic";
+        String outputKafkaBroker = "yourOutputKafkaBroker";
 
         switch (taskMode) {
             case "fit":
@@ -135,12 +152,28 @@ class FeatureEngineeringTransferOpTest {
                 params.set("libfgSoPath", libfgSoPath);
                 params.set("libfgConfLocalPath", libfgConfLocalPath);
                 params.set("libfgConfRemotePath", libfgConfRemotePath);
-                TextSinkBatchOp outputSink =
-                        new TextSinkBatchOp()
-                                .setFilePath(
-                                        new FilePath(outputPath, new FlinkFileSystem(outputPath)));
-                data.link(new LibfgTransferOp(params)).link(outputSink);
-                BatchOperator.execute();
+                switch (outputDataType) {
+                    case "batch":
+                        TextSinkBatchOp outputSink =
+                                new TextSinkBatchOp()
+                                        .setFilePath(
+                                                new FilePath(
+                                                        outputPath,
+                                                        new FlinkFileSystem(outputPath)));
+                        data.link(new LibfgTransferBatchOp(params)).link(outputSink);
+                        BatchOperator.execute();
+                    case "stream":
+                        KafkaSinkStreamOp streamOutput =
+                                new KafkaSinkStreamOp()
+                                        .setPluginVersion("0.11")
+                                        .setDataFormat("CSV")
+                                        .setBootstrapServers(outputKafkaBroker)
+                                        .setTopic(outputKafkaTopic);
+                        streamInput.link(new LibfgTransferStreamOp(params)).link(streamOutput);
+                        StreamOperator.execute();
+                    default:
+                        System.out.println("Unknown output data type: " + outputDataType);
+                }
                 break;
             default:
                 System.out.println("Unknown task mode: " + taskMode);

@@ -14,18 +14,27 @@ import org.apache.flink.types.Row;
 
 import java.io.Serializable;
 
-public class LibfgTransferOp extends BatchOperator<LibfgTransferOp>
-        implements LibfgTransferParams<LibfgTransferOp>, Serializable {
+public class LibfgTransferBatchOp extends BatchOperator<LibfgTransferBatchOp>
+        implements LibfgTransferParams<LibfgTransferBatchOp>, Serializable {
 
-    private static final String libfgSoPath = "/flink/usrlib/libperception_feature_plugin.so";
-    private static final LibfgWrapper LIBFG_INSTANCE =
-            Native.load(libfgSoPath, LibfgWrapper.class);
+    private static String libfgSoPath;
+    private static LibfgWrapper LIBFG_INSTANCE;
 
-    public LibfgTransferOp(Params params) {
+    public LibfgTransferBatchOp(Params params) {
         super(params);
+        libfgSoPath =
+                params.getStringOrDefault(
+                        "libfgSoPath", "/flink/usrlib/libperception_feature_plugin.so");
+        LIBFG_INSTANCE = Native.load(libfgSoPath, LibfgWrapper.class);
     }
 
-    private static String FeatureExtract(String input, String localPath, String remotePath) {
+    private static String FeatureExtract(
+            String input, String localPath, String remotePath, String libfgSoPath) {
+        /** Flink workers doesn't initialize LIBFG_INSTANCE */
+        if (null == LIBFG_INSTANCE) {
+            System.out.printf("Init LIBFG_INSTANCE in worker");
+            LIBFG_INSTANCE = Native.load(libfgSoPath, LibfgWrapper.class);
+        }
         Pointer pRemotePath = new Memory((remotePath.length() + 1) * Native.WCHAR_SIZE);
         pRemotePath.setString(0, remotePath);
         Pointer pPath = new Memory((localPath.length() + 1) * Native.WCHAR_SIZE);
@@ -45,9 +54,13 @@ public class LibfgTransferOp extends BatchOperator<LibfgTransferOp>
     }
 
     @Override
-    public LibfgTransferOp linkFrom(BatchOperator<?>... inputs) {
+    public LibfgTransferBatchOp linkFrom(BatchOperator<?>... inputs) {
         String libfgConfLocalPath = getParams().getString("libfgConfLocalPath");
         String libfgConfRemotePath = getParams().getString("libfgConfRemotePath");
+        String libfgSoPath =
+                getParams()
+                        .getStringOrDefault(
+                                "libfgSoPath", "/flink/usrlib/libperception_feature_plugin.so");
         DataSet<Row> ret =
                 inputs[0]
                         .getDataSet()
@@ -57,7 +70,8 @@ public class LibfgTransferOp extends BatchOperator<LibfgTransferOp>
                                                 FeatureExtract(
                                                         x.toString(),
                                                         libfgConfLocalPath,
-                                                        libfgConfRemotePath)));
+                                                        libfgConfRemotePath,
+                                                        libfgSoPath)));
         setOutput(ret, new TableSchema(new String[] {"out"}, new TypeInformation[] {Types.STRING}));
         return this;
     }
