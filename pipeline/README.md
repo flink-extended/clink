@@ -34,3 +34,11 @@ mvn clean package -DskipTests
 ```
 
 NOTE: Users may need to download plugins like kafka, we recommand use the plugin downloader located in ` pipeline/src/main/java/com/feature/common/PluginHandler`  to download the specific plugins. 
+
+After build process, in target directory, you can find clink-0.1jar that only contains clink-pipeline classes, and clink-0.1-jar-with-dependencies.jar that contains dependencies. User can use clink-0.1-jar-with-dependencies.jar for convenience.
+
+
+
+### Demo
+
+We add simple examples in demo directory, user can try clink-pipeline in local flink cluster by running given scripts. Tested on MacOS. Before  running demo scripts, user need to install flink and create a local flink cluster, detailed local installation instruction can refer to [Local Installation | Apache Flink](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/try-flink/local_installation/#:~:text=Local Installation. 1 Step 1%3A Download. To be,Job. 4 Step 4%3A Stop the Cluster. ).
