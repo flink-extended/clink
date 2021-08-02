@@ -1,0 +1,32 @@
+syntax = "proto2";
+import public "common.proto";
+package perception_feature.proto;
+option cc_generic_services = true;
+message SearchRequest {
+  repeated Record records = 1;
+};
+message Request {
+  optional SearchRequest search_request = 1;
+};
+message SampleRecord{
+  repeated Record feature_list = 1;
+}
+message FeatureRequest {
+  optional string sid = 1;
+  optional string biz_name = 3;
+  repeated SampleRecord sample_list = 4;
+};
+
+message FeatureResponse {
+  optional string sid = 1;
+  optional int32 err_no = 2;
+  optional string err_msg = 3;
+  optional OutputFormat output_format = 4;
+  repeated RecordEntry key_value_result = 5;
+  repeated IVRecordList index_value_result = 6;
+  repeated Record result = 7;
+};
+
+service FeatureService {
+  rpc FeatureExtract(FeatureRequest) returns (FeatureResponse);
+};

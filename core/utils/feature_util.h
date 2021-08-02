@@ -20,9 +20,11 @@
 #include <vector>
 
 #include "core/common/common.h"
-#include "core/common/variable_table.h"
+#include "core/common/context.h"
 #include "core/config/operation_meta.h"
-namespace perception_feature {
+
+namespace clink {
+
 typedef enum {
   RECORD_TYPE_UNKNOWN = 0,
   RECORD_TYPE_BYTE,
@@ -37,8 +39,10 @@ class FeatureUtil {
  public:
   static bool GetParam(const OpParamMap& param_map, const std::string& key,
                        OpParam& param);
-  static int GetSize(const Feature&);
-  static inline RecordType GetType(const Feature& data) {
+
+  static int GetSize(const proto::Record&);
+  // static int GetSize(const Feature&);
+  static inline RecordType GetType(const proto::Record& data) {
     if (data.has_float_list()) {
       return RECORD_TYPE_FLOAT;
     } else if (data.has_double_list()) {
@@ -56,28 +60,55 @@ class FeatureUtil {
     }
     return RECORD_TYPE_UNKNOWN;
   }
-  static void ToIndexValue(Feature& feature_result,
+
+  // static inline proto::DataType GetType(const Feature& data) {
+  //   if (data.data_type() != proto::RESERVED) {
+  //     return data.data_type();
+  //   }
+  //   if (data.float_list_size() > 0) {
+  //     return proto::DT_FLOAT;
+  //   } else if (data.double_list_size() > 0) {
+  //     return proto::DT_DOUBLE;
+  //   } else if (data.int64_list_size() > 0) {
+  //     return proto::DT_INT64;
+  //   } else if (data.int_list_size() > 0) {
+  //     return proto::DT_INT32;
+  //   } else if (data.bytes_list_size() > 0) {
+  //     return proto::DT_STRING;
+  //   } else if (data.bool_list_size() > 0) {
+  //     return proto::DT_BOOL;
+  //   } else if (data.iv_list_size() > 0) {
+  //     return proto::DT_IV;
+  //   }
+  //   return proto::RESERVED;
+  // }
+
+  static void ToIndexValue(const Feature&,
                            const OperationMetaItem* operation_config,
-                           const int& start_index,
-                           IVRecordList& iv_record_list);
-  static void ToIndexValue(const Feature& feature_result,
-                           const OperationMetaItem* operation_config,
-                           const int& start_index, std::vector<float>& index,
-                           std::vector<float>& value);
+                           const int& start_index, std::vector<int>* index,
+                           std::vector<float>* value);
+
   static void CalcIndexValueVector(const Feature& feature,
                                    const int& start_index,
-                                   std::vector<float>& index,
-                                   std::vector<float>& value);
-  static void CalcIndexValueVector(const Feature& feature, const int& index,
-                                   IVRecordList& iv_record_list);
+                                   std::vector<int>* index,
+                                   std::vector<float>* value);
+
+  static void BuildResponse(Context* context, std::vector<int>* index,
+                            std::vector<float>* value);
+
   static void BuildResponse(const OperationMeta& operation_meta,
-                            const FeatureVariableTable& var_table,
-                            std::shared_ptr<FeatureResponse> response);
-  static void BuildResponse(const OperationMeta& operation_meta,
-                            const FeatureVariableTable& var_table,
-                            std::vector<float>& index,
-                            std::vector<float>& value);
+                            Context* var_table,
+                            DinResultRecord* din_result_record);
+
+  static void ToIndexValue(const Feature& feature,
+                           const OperationMetaItem* operation_config,
+                           const int& start_index,
+                           DinResultRecord* din_result_record);
+
+  static void CalcIndexValueVector(const Feature& feature,
+                                   const int& start_index,
+                                   DinResultRecord* din_result_record);
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_UTILS_FEATURE_UTIL_H_

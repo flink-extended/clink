@@ -34,7 +34,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "core/common/common.h"
 #include "core/utils/bin2ascii.h"
-namespace perception_feature {
+namespace clink {
 
 class ProtoJson {
   using Message = google::protobuf::Message;
@@ -64,6 +64,6 @@ class ProtoJson {
                         const FieldDescriptor* field,
                         const bool& base64_encode);
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_UTILS_PROTO_JSON_H_

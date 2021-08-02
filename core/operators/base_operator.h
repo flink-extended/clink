@@ -25,28 +25,36 @@
 #include "core/common/common.h"
 #include "core/common/operation_node.h"
 #include "core/operands/variable.h"
-namespace perception_feature {
+namespace clink {
 class BaseOperator : public OperationNode {
  public:
-  virtual ~BaseOperator();
+  virtual ~BaseOperator() = default;
+
   void AddChild(const std::shared_ptr<OperationNode>& child);
-  void SetParams(const std::unordered_map<std::string, Feature>&);
+
+  void SetParams(const std::unordered_map<std::string, OpParam>&);
+
   int GetChildrenNum() const;
+
   virtual std::shared_ptr<BaseOperator> Clone() const = 0;
-  // bool GetParam(const std::string& key, OpParam&);
+
   const OpParam* GetParam(const std::string& key);
+
   bool InsertParam(const std::string& key, const OpParam&);
+
   void SetInitStatus(const bool& status) { init_status_ = status; }
+
   const std::vector<std::string>& GetVariables() const;
+
   void AppendVariables(const std::vector<std::string>&);
+
   void AddVariables(const std::string& var);
-  //   bool GetIndexStatus() override {
-  //    return index_only_;
-  //  }
+
   virtual bool ParseParamMap(const std::string& name,
                              const OpParamMap& param_map) {
     return true;
   }
+  
   virtual bool ParseParamMap(const std::vector<std::string>& name,
                              const OpParamMap& param_map) {
     return true;
@@ -55,17 +63,24 @@ class BaseOperator : public OperationNode {
 
  protected:
   BaseOperator();
+
   BaseOperator(const BaseOperator&);
+
   explicit BaseOperator(const int&);
+
   std::vector<std::shared_ptr<OperationNode>> children_;  //子树列表
-  int opa_num_;                                           //操作元个数
-  std::unordered_map<std::string, Feature> params_;
+
+  int opa_num_;  //操作元个数
+
+  std::unordered_map<std::string, OpParam> params_;
+
   bool init_status_;
-  // bool index_only_;//是否对特征进行 one hot 编码
+
  private:
   BaseOperator& operator=(const BaseOperator&);
+
   std::vector<std::string> variables_;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_BASE_OPERATOR_H_

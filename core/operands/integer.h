@@ -20,11 +20,12 @@
 
 #include "core/common/common.h"
 #include "core/operands/operand.h"
-namespace perception_feature {
+namespace clink {
 class Integer : public Operand {
  public:
   explicit Integer(int64_t = 0);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&);
+
+  const Feature* Evaluate(Context*) override;
 
  protected:
   Integer(const Integer&);
@@ -32,6 +33,6 @@ class Integer : public Operand {
  private:
   int64_t value_;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERANDS_INTEGER_H_

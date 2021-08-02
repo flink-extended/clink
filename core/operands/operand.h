@@ -18,16 +18,18 @@
 #include <string>
 
 #include "core/common/operation_node.h"
-namespace perception_feature {
+namespace clink {
 class Operand : public OperationNode {
  public:
   Operand() = default;
+  
   virtual ~Operand() = default;
+  
   const std::string* GetOperationName() override { return nullptr; }
 
  protected:
   Operand(const Operand&) {}
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERANDS_OPERAND_H_

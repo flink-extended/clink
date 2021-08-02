@@ -22,56 +22,65 @@
 
 #include "core/common/feature_item.h"
 #include "core/config/operation_meta_item.h"
-namespace perception_feature {
+#include "core/utils/topsort.h"
+#include "core/utils/util.h"
+namespace clink {
+
 class OperationMeta {
  public:
   OperationMeta();
+
   virtual ~OperationMeta();
+
   void Reset();
-  int AddOperation(const FeatureItem& feature,
-                   const OperationMetaItem& feature_meta_base);
-  void AddFeatureRelation(const std::vector<FeatureItem>&, const FeatureItem&);
-  void AddOutputSequence(const std::string& output) {
-    output_sequence_.emplace_back(output);
-  }
-  void SetOutputFromat(const OutputFromat& output_type) {
-    output_type_ = output_type;
-  }
-  bool BfsTraverse();
-  inline const std::unordered_map<int64_t, OperationMetaItem>& GetOperationMap()
-      const {
-    return operation_map_;
-  }
-  //特征提取顺序
-  inline const std::vector<FeatureItem>& GetFeatureItemSequence() const {
-    return feature_item_sequence_;
-  }
+
+  int LoadOperation(const std::string& config_path);
+
   //特征输出顺序
-  inline const std::vector<FeatureItem>& GetOutPutSequence() const {
+  inline const std::vector<FeatureItem>& output_sequence() const {
     return output_sequence_;
   }
-  inline const OutputFromat& GetOutputFromat() const { return output_type_; }
+
+  //特征提取顺序
+  inline const std::vector<std::vector<std::shared_ptr<FeatureItem>>>&
+  extract_sequence() const {
+    return extract_sequence_;
+  }
+
+  inline const OutputFromat& output_type() const { return output_type_; }
+
   inline const OperationMetaItem* GetOperationMetaItem(
       const FeatureItem& feature) const {
-    auto it = operation_map_.find(feature.Id());
+    auto it = operation_map_.find(feature.id());
     if (it == operation_map_.end()) {
       return nullptr;
     }
-    return &it->second;
+    return it->second.get();
   }
-  inline const int& GetTotalFeatureSize() const { return total_feature_size_; }
+
+  inline const int& total_feature_size() const { return total_feature_size_; }
 
  private:
-  FeatureRelation<std::string> feature_relation_;
-  std::vector<std::string> feature_sequence_;       //特征提取顺序
-  std::vector<FeatureItem> feature_item_sequence_;  //特征提取顺序
-  std::vector<FeatureItem> output_sequence_;        //特征输出顺序
+  int AddOperation(std::shared_ptr<OperationMetaItem>&);
+
+  bool TopSort();
+
+ private:
+  std::vector<std::vector<std::shared_ptr<FeatureItem>>>
+      extract_sequence_;  //特征提取顺序
+
+  std::vector<FeatureItem> output_sequence_;  //特征输出顺序
+
   int total_feature_size_;
+
   OutputFromat output_type_;
-  std::unordered_map<int64_t, OperationMetaItem>
+
+  std::unordered_map<int64_t, std::shared_ptr<OperationMetaItem>>
       operation_map_;  // 配置中所有op
+
+  std::unique_ptr<utils::TopSort<std::string>> sorter_;
 };
 
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_CONFIG_OPERATION_META_H_

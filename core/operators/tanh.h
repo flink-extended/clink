@@ -19,17 +19,17 @@
 #include <string>
 
 #include "core/operators/unary_operator.h"
-namespace perception_feature {
+namespace clink {
 class Tanh : public UnaryOperator {
  public:
   Tanh();
-  explicit Tanh(const std::string& feature_name);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
-  std::shared_ptr<BaseOperator> Clone() const override;
 
- protected:
-  Tanh(const Tanh&) = default;
+  explicit Tanh(const std::string& feature_name);
+
+  const Feature* Evaluate(Context*) override;
+
+  std::shared_ptr<BaseOperator> Clone() const override;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_TANH_H_

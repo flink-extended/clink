@@ -25,46 +25,49 @@
 
 #include "core/common/common.h"
 #include "core/common/feature_item.h"
-#include "core/common/operation_node.h"
-namespace perception_feature {
-template <typename T>
-using FeatureRelation = std::unordered_map<T, std::unordered_set<T>>;
+namespace clink {
+
+class OperationNode;
 
 class OperationMetaItem {
  public:
-  OperationMetaItem();
-  virtual ~OperationMetaItem();
+  int Init(const Operation& operation);
+
   void Reset();
-  bool CheckComplete();
-  void AddInputFeatures(const std::string& input_feature);
-  void SetOutputFeature(const std::string& out_feature);
-  void SetComplete(const bool& feature_complete);
-  inline const std::shared_ptr<OperationNode>& GetExpressionTree() const {
+
+  const std::vector<FeatureItem>& input_features() { return input_features_; }
+
+  const FeatureItem& output_feature() const { return output_feature_; }
+
+  const std::shared_ptr<OperationNode>& expression_tree() const {
     return expression_tree_;
   }
-  const FeatureItem& GetOutputFeature();
-  const std::vector<FeatureItem>& GetInputFeatures();
-  void SetFeatureSize(const int& feature_size) { feature_size_ = feature_size; }
-  inline const int& GetFeatureSize() const { return feature_size_; }
-  void SetExpressionTree(
-      const std::shared_ptr<OperationNode>& expression_tree) {
-    expression_tree_ = expression_tree;
-  }
-  const FeatureType& GetOutputFeatureType() const {
+
+  const bool& feature_complete() { return complete_; }
+
+  void set_complete(const bool& complete) { complete_ = complete; }
+
+  inline const int& feature_size() const { return feature_size_; }
+
+  const FeatureType& output_feature_type() const {
     return output_feature_type_;
-  }
-  void SetOutputFeatureType(const FeatureType& feature_type) {
-    output_feature_type_ = feature_type;
   }
 
  private:
-  std::vector<FeatureItem> input_features_;         //输入特征列表
-  FeatureItem output_feature_;                      //输出特征名
+  bool ParseTransform(const Transform& transform);
+
+  std::vector<FeatureItem> input_features_;  //输入特征列表
+
+  FeatureItem output_feature_;  //输出特征名
+
   std::shared_ptr<OperationNode> expression_tree_;  //表达式树
-  bool feature_complete_;                           //特征是否完成计算
+
+  bool complete_;  //特征是否完成计算
+
   int feature_size_;
+
   FeatureType output_feature_type_;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_CONFIG_OPERATION_META_ITEM_H_

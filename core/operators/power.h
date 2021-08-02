@@ -19,17 +19,17 @@
 #include <string>
 
 #include "core/operators/binary_operator.h"
-namespace perception_feature {
+namespace clink {
 class Power : public BinaryOperator {
  public:
   Power();
-  Power(const std::string& first_feature, const std::string& second_feature);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
-  std::shared_ptr<BaseOperator> Clone() const override;
 
- protected:
-  Power(const Power&) = default;
+  Power(const std::string& first_feature, const std::string& second_feature);
+
+  const Feature* Evaluate(Context*) override;
+
+  std::shared_ptr<BaseOperator> Clone() const override;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_POWER_H_

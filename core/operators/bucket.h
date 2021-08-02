@@ -22,32 +22,32 @@
 #include "core/operands/variable.h"
 #include "core/operators/unary_operator.h"
 #include "core/utils/convert_util.h"
-namespace perception_feature {
+namespace clink {
 class Bucket : public BaseOperator {
  public:
   Bucket();
   Bucket(const std::string& feature_name, const OpParamMap& param_map);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
+
+  const Feature* Evaluate(Context*) override;
 
   std::shared_ptr<BaseOperator> Clone() const override;
+
   bool ParseParamMap(const std::string& feature_name,
                      const OpParamMap& param_map) override;
   bool ParseParamMap(const std::vector<std::string>& variables,
                      const OpParamMap& param_map) override;
 
- protected:
-  Bucket(const Bucket&) = default;
-
  private:
   int GetBucketIndex(const Feature& feature);
-  inline void GetBucketIndex(const Feature& feature, int& index) {
+  
+  inline void GetBucketIndex(const Feature& feature, int* index) {
     double value;
     ConvertUtil::ToDouble(feature, value);
     int vec_size = boundaries_.size();
-    index = vec_size;
+    *index = vec_size;
     if (value < boundaries_.at(vec_size - 1)) {
-      index = std::upper_bound(boundaries_.begin(), boundaries_.end(), value) -
-              boundaries_.begin();
+      *index = std::upper_bound(boundaries_.begin(), boundaries_.end(), value) -
+               boundaries_.begin();
     }
   }
   bool ParseParam(const std::string& feature_name, const OpParamMap& param_map);
@@ -56,6 +56,6 @@ class Bucket : public BaseOperator {
   std::string index_postfix = "_index_only";
   std::vector<double> boundaries_;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_BUCKET_H_

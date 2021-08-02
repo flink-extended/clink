@@ -19,23 +19,33 @@
 #include <string>
 
 #include "core/common/common.h"
-namespace perception_feature {
+namespace clink {
+//存储特征名和特征id之间的对应关系
 class FeatureItem {
  public:
   FeatureItem() = default;
+
   explicit FeatureItem(const std::string& feature_name) {
-    feature_id_ = MAKE_HASH(feature_name);
-    feature_name_ = feature_name;
+    id_ = MAKE_HASH(feature_name);
+    name_ = feature_name;
   }
-  inline const std::string& Name() const { return feature_name_; }
-  inline const int64_t& Id() const { return feature_id_; }
+
+  FeatureItem(const FeatureItem& item) {
+    this->id_ = item.id();
+    this->name_ = item.name();
+  }
+
+  inline const std::string& name() const { return name_; }
+
+  inline const int64_t& id() const { return id_; }
+
   virtual ~FeatureItem() = default;
 
  private:
-  std::string feature_name_;
-  int64_t feature_id_;
+  std::string name_;
+  int64_t id_;
 };
 
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_COMMON_FEATURE_ITEM_H_

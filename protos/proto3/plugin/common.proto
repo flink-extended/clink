@@ -1,0 +1,98 @@
+syntax = "proto3";
+option cc_enable_arenas = true;
+package clink.proto;
+
+message BytesList {
+  repeated bytes value = 1;
+}
+
+message FloatList {
+  repeated float value = 1 [packed = true];
+}
+
+message DoubleList {
+  repeated double value = 1 [packed = true];
+}
+
+message Int64List {
+  repeated int64 value = 1 [packed = true];
+}
+
+message IntList {
+  repeated int32 value = 1 [packed = true];
+}
+
+message BoolList {
+  repeated bool value = 1 [packed = true];
+}
+
+//index value record
+message IVRecordEntry{
+  int64 index = 1;
+  Record value = 2;
+}
+//index value record
+message IVRecordList{
+  repeated IVRecordEntry iv_record = 1;
+}
+
+//特征基本信息
+message Record{
+  oneof kind {
+    BytesList bytes_list = 1;
+    BoolList bool_list = 2;
+    IntList int_list = 3;
+    Int64List int64_list = 4;
+    FloatList float_list = 5;
+    DoubleList double_list = 6;
+    IVRecordList iv_list = 7;
+  }
+}
+
+message Features {
+  map<string, Record> feature = 1;
+}
+
+message FeatureList {
+  repeated Record feature = 1;
+}
+
+//样本
+//message SampleRecord {
+//  repeated Record features = 1;
+//}
+
+//样本
+message SampleRecord {
+  map<int32, Record> features = 1;
+}
+
+message SampleMap{
+  map<int32, SampleRecord> sample_map = 1;
+}
+
+message RecordEntry{
+  string key = 1;
+  Record value = 2;
+}
+
+enum FeatureType{
+  TYPE_RESERVED = 0;
+  CONTINUOUS = 1; //连续特征
+  DISCRETE = 2;//离散特征
+  VECTOR=3;// 向量特征
+}
+
+enum OutputFormat{
+  OUT_RESERVED = 0;
+  OUT_LIBSVM = 1;
+  OUT_CSV = 2;
+  OUT_KV = 3;
+  OUT_IV = 4;
+}
+
+
+
+
+
+

@@ -23,25 +23,34 @@
 #include "core/operators/base_operator.h"
 #include "core/operators/unary_operator.h"
 #include "core/utils/convert_util.h"
-namespace perception_feature {
+namespace clink {
 class ToVector : public UnaryOperator {
  public:
   ToVector();
+
   ToVector(const std::string& feature_name, const OpParamMap& param_map);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
+
+  const Feature* Evaluate(Context*) override;
+
   std::shared_ptr<BaseOperator> Clone() const override;
+
   bool ParseParamMap(const std::string& name,
                      const OpParamMap& param_map) override;
 
- protected:
-  ToVector(const ToVector&);
+  //  protected:
+  //   ToVector(const ToVector&);
 
  private:
   int vec_size_;
+
   std::string separator_;  //
+
   proto::FeatureDataType vec_data_type_;
+
   bool ParseParam(const std::string& name, const OpParamMap& param_map);
+
+  void Transform(const std::string& input, Feature* output);
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_TO_VECTOR_H_

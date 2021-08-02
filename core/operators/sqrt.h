@@ -19,17 +19,18 @@
 #include <string>
 
 #include "core/operators/unary_operator.h"
-namespace perception_feature {
+namespace clink {
 class Sqrt : public UnaryOperator {
  public:
   Sqrt();
+
   explicit Sqrt(const std::string& feature_name);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
+
+  const Feature* Evaluate(Context*) override;
+
   std::shared_ptr<BaseOperator> Clone() const override;
 
- protected:
-  Sqrt(const Sqrt&);
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_SQRT_H_

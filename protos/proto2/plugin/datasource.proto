@@ -1,0 +1,37 @@
+syntax = "proto2";
+package perception_feature.proto;
+enum DataSourceType{
+  DT_RESERVED = 0;
+  CSV_DATA = 1;
+}
+message DataSource {
+  required DataSourceType data_type = 1;//数据类型
+  required string biz_name = 2;//业务名称
+  required string data_conf = 3;//数据配置文件
+}
+message DataSourceList {
+  required string version = 1;
+  optional string description = 2;
+  repeated DataSource data_source = 3;
+}
+
+enum FeatureDataType{
+  FT_RESERVED = 0;
+  STRING_TYPE = 1;
+  INTEGER_TYPE = 2;
+  REAL_TYPE = 3;
+}
+
+message CsvDataConfig{
+  required int32 column = 1;
+  required string feature_name = 2;
+  required FeatureDataType feature_data_type = 3;
+}
+message CsvDataConfigList{
+  required string version = 1;
+  optional string description = 2;
+  optional string data_path = 3;
+  optional string separator = 4;
+  optional string file_extension = 5;
+  repeated CsvDataConfig config_list = 6;
+}

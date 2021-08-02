@@ -19,14 +19,16 @@
 #include <string>
 
 #include "core/common/common.h"
-#include "core/common/variable_table.h"
 #include "core/operands/operand.h"
-namespace perception_feature {
+namespace clink {
 class Variable : public Operand {
  public:
   explicit Variable(std::string);
+
   const std::string& GetKey();
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
+
+  const Feature* Evaluate(Context*) override;
+
   const std::string* GetOperationName() override;
 
  protected:
@@ -36,5 +38,5 @@ class Variable : public Operand {
   std::string token_;
   int64_t hash_token_;
 };
-}  // namespace perception_feature
+}  // namespace clink
 #endif  // CORE_OPERANDS_VARIABLE_H_

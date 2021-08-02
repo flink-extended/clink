@@ -19,23 +19,25 @@
 #include <string>
 
 #include "core/operators/unary_operator.h"
-namespace perception_feature {
+namespace clink {
 class Standard : public UnaryOperator {
  public:
   Standard();
+
   Standard(const std::string& feature_name, const OpParamMap& param_map);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
+
+  const Feature* Evaluate(Context*) override;
+
   std::shared_ptr<BaseOperator> Clone() const override;
+
   bool ParseParamMap(const std::string& feature_name,
                      const OpParamMap& param_map) override;
-
- protected:
-  Standard(const Standard&);
 
  private:
   double std_;   //方差
   double mean_;  //均值
+  std::string feature_name_;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_STANDARD_H_

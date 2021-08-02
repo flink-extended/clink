@@ -15,7 +15,7 @@
 
 #ifndef CORE_UTILS_FILE_UTILS_H_
 #define CORE_UTILS_FILE_UTILS_H_
-#include <glog/logging.h>
+#include <butil/logging.h>
 #include <sys/dir.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -23,7 +23,8 @@
 #include <list>
 #include <queue>
 #include <string>
-namespace perception_feature {
+
+namespace clink {
 class FileUtils {
  public:
   static void ListFiles(std::list<std::string>& files, const std::string& path,
@@ -57,6 +58,6 @@ class FileUtils {
     return file_path;
   }
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_UTILS_FILE_UTILS_H_

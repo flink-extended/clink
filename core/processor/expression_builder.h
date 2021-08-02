@@ -15,7 +15,7 @@
 
 #ifndef CORE_PROCESSOR_EXPRESSION_BUILDER_H_
 #define CORE_PROCESSOR_EXPRESSION_BUILDER_H_
-#include <glog/logging.h>
+#include <butil/logging.h>
 
 #include <memory>
 #include <string>
@@ -25,22 +25,18 @@
 #include "core/operands/integer.h"
 #include "core/operands/real.h"
 #include "core/operands/variable.h"
-#include "core/operators/operator_factory.h"
 #include "core/utils/string_utils.h"
-namespace perception_feature {
+namespace clink {
 class ExpressionBuilder {
  public:
   static std::shared_ptr<OperationNode> BuildExpressionTree(
-      const std::string&, const OpParamMap& param_map,
-      const OperatorFactory& operator_factory);
+      const std::string&, const OpParamMap& param_map);
 
  private:
-  static bool isValid(const std::string&, const std::vector<std::string>&,
-                      const OperatorFactory&);
+  static bool isValid(const std::string&, const std::vector<std::string>&);
   static std::shared_ptr<OperationNode> GenerateExpressionTree(
-      std::vector<std::string>& tokens, const OpParamMap& op_param_map,
-      const OperatorFactory& operator_factory);
+      std::vector<std::string>& tokens, const OpParamMap& op_param_map);
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_PROCESSOR_EXPRESSION_BUILDER_H_

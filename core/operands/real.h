@@ -20,18 +20,19 @@
 
 #include "core/common/common.h"
 #include "core/operands/operand.h"
-namespace perception_feature {
+namespace clink {
 class Real : public Operand {
- private:
-  double value_;
+ public:
+  explicit Real(const double& i = 0);
+
+  const Feature* Evaluate(Context*) override;
 
  protected:
   Real(const Real&);
 
- public:
-  explicit Real(const double& i = 0);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&);
+ private:
+  double value_;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERANDS_REAL_H_

@@ -17,37 +17,37 @@
 #define CORE_UTILS_STRING_UTILS_H_
 #include <string>
 #include <vector>
-namespace perception_feature {
+namespace clink {
 class StringUtils {
  public:
-  static std::vector<std::string>& Split(const std::string& s, char delim,
-                                         std::vector<std::string>& elems);
-  static void Split(const char* str, char delim,
-                    std::vector<std::string>& output);
   static void Split(const std::string& str, const std::string& delim,
-                    std::vector<std::string>& output);
-  static void Split(const std::string& str, const char* delim,
-                    std::vector<std::string>& output);
-  static void Split(const std::string* str, const char* delim,
-                    std::vector<std::string>& output);
+                    std::vector<std::string>* output);
+
   static void ReplaceAll(std::string& str, const std::string& from,
                          const std::string& to);
 
-  static void ToLower(std::string& str);
+  static void ToLower(std::string* str);
 
   static bool StartsWith(const std::string& fullstr, const std::string& prefix);
+
   static bool EndsWith(const std::string& fullstr, const std::string& ending);
 
   static void Trim(std::string& str);
+
   static bool IsNumber(const std::string& str);
+
   static std::string RandomString(int len);
+
   static int CompareIgnoreCase(const std::string& lhs, const std::string& rhs);
+
   static bool SplitExpression(const std::string& input,
                               const std::string& regex,
-                              std::vector<std::string>& result);
+                              std::vector<std::string>* result);
+
   static bool IsBracketValid(const std::string& str);
+
   static int64_t StringHash(const std::string& str);
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_UTILS_STRING_UTILS_H_

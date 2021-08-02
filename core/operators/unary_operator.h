@@ -19,7 +19,7 @@
 #include <string>
 
 #include "core/operators/base_operator.h"
-namespace perception_feature {
+namespace clink {
 class UnaryOperator : public BaseOperator {
  public:
   UnaryOperator();
@@ -34,5 +34,5 @@ class UnaryOperator : public BaseOperator {
  private:
   UnaryOperator& operator=(const UnaryOperator&);
 };
-}  // namespace perception_feature
+}  // namespace clink
 #endif  // CORE_OPERATORS_UNARY_OPERATOR_H_

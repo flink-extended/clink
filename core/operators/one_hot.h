@@ -22,26 +22,28 @@
 
 #include "core/operands/variable.h"
 #include "core/operators/unary_operator.h"
-namespace perception_feature {
+namespace clink {
 class OneHot : public UnaryOperator {
  public:
   OneHot();
+
   OneHot(const std::string& feature_name, const OpParamMap& param_map);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
+
+  const Feature* Evaluate(Context*) override;
+
   std::shared_ptr<BaseOperator> Clone() const override;
+
   bool ParseParamMap(const std::string& name,
                      const OpParamMap& param_map) override;
+
   bool ParseParamMap(const std::vector<std::string>& variables,
                      const OpParamMap& param_map) override;
-
- protected:
-  OneHot(const OneHot&);
 
  private:
   int bin_size_;
   std::unordered_map<std::string, int> encode_map_;
   bool ParseParam(const std::string& name, const OpParamMap& param_map);
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_ONE_HOT_H_

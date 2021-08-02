@@ -33,7 +33,7 @@ freely, subject to the following restrictions:
 #include <thread>
 #include <utility>
 #include <vector>
-namespace perception_feature {
+namespace clink {
 
 enum AffinityType { AFFINITY_DISABLE, AFFINITY_AVERAGE, AFFINITY_SINGLE };
 enum TaskStatus { TASK_INITED = 0, TASK_FINISHED, TASK_EXPIRED };
@@ -152,6 +152,6 @@ class SimpleThreadPool {
   std::atomic<int> core_index_;
   bool enable_affinity_;
 };  // SimpleSimpleThreadPool
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_UTILS_SIMPLP_THREAD_POOL_H_

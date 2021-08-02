@@ -19,21 +19,23 @@
 #include <string>
 
 #include "core/operators/base_operator.h"
-namespace perception_feature {
+namespace clink {
 class BinaryOperator : public BaseOperator {
  public:
-  virtual ~BinaryOperator();
+  virtual ~BinaryOperator() = default;
+
   BinaryOperator(const std::string&, const std::string&);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override = 0;
+
   std::shared_ptr<BaseOperator> Clone() const override = 0;
-  bool GetTreeValue(const FeatureMap& feature_map, double& left,
-                    double& right) const;
+
+  bool GetTreeValue(Context* context, double& left, double& right) const;
 
  protected:
   BinaryOperator();
+
   BinaryOperator(const BinaryOperator&) = default;
 };
 
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_BINARY_OPERATOR_H_

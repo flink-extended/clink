@@ -20,24 +20,27 @@
 #include <vector>
 
 #include "core/config/operation_meta.h"
-#include "core/datasource/data_source_base.h"
-namespace perception_feature {
+
+namespace clink {
+class SourceParserBase;
+
 class FeatureConfig {
  public:
   FeatureConfig();
-  virtual ~FeatureConfig();
+  
   int LoadConfig(const std::string&);
-  const std::vector<std::shared_ptr<DataSourceBase>>& GetDataSourceList()
-      const {
-    return data_source_list_;
+
+  std::shared_ptr<SourceParserBase>& source_parser() { return source_parser_; }
+
+  inline const OperationMeta* operation_meta() const {
+    return operation_meta_.get();
   }
-  const OperationMeta& GetOperationMeta() const { return operation_meta_; }
 
  private:
-  std::string config_path_;
-  OperationMeta operation_meta_;
-  std::vector<std::shared_ptr<DataSourceBase>> data_source_list_;
+  std::shared_ptr<OperationMeta> operation_meta_;
+
+  std::shared_ptr<SourceParserBase> source_parser_;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_CONFIG_FEATURE_CONFIG_H_

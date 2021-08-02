@@ -18,7 +18,7 @@
 #include <cstdint>
 
 #include <algorithm>
-namespace perception_feature {
+namespace clink {
 
 uint64_t MurmurHash64A(const void* key, int len, uint64_t seed);
 }

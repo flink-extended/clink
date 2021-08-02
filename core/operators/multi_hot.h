@@ -23,20 +23,22 @@
 #include "core/operands/variable.h"
 #include "core/operators/unary_operator.h"
 #include "core/utils/string_utils.h"
-namespace perception_feature {
+namespace clink {
 class MultiHot : public BaseOperator {
  public:
   MultiHot();
+
   MultiHot(const std::string& feature_name, const OpParamMap& param_map);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
+
+  const Feature* Evaluate(Context*) override;
+
   std::shared_ptr<BaseOperator> Clone() const override;
+
   bool ParseParamMap(const std::string& name,
                      const OpParamMap& param_map) override;
+
   bool ParseParamMap(const std::vector<std::string>& variables,
                      const OpParamMap& param_map) override;
-
- protected:
-  MultiHot(const MultiHot&) = default;
 
  private:
   bool ParseParam(const std::string& name, const OpParamMap& param_map);
@@ -46,6 +48,6 @@ class MultiHot : public BaseOperator {
   int truncate_num_;
   std::string deli_postfix_ = "_deli";
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_MULTI_HOT_H_

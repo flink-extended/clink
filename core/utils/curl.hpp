@@ -20,7 +20,7 @@
 #include <iostream>
 #include <string>
 
-namespace perception_feature {
+namespace clink {
 class Curl {
  public:
   static int Download(const std::string &url, const std::string &filename) {
@@ -44,6 +44,6 @@ class Curl {
     return -1;
   }
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_UTILS_CURL_HPP_

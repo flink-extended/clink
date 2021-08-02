@@ -19,18 +19,17 @@
 #include <string>
 
 #include "core/operators/unary_operator.h"
-namespace perception_feature {
+namespace clink {
 class Cosine : public UnaryOperator {
  public:
   Cosine();
-  explicit Cosine(const std::string& feature_name);
-  std::shared_ptr<BaseOperator> Clone() const override;
-  int Evaluate(const FeatureMap& input,
-               std::shared_ptr<Feature>& feature) override;
 
- protected:
-  Cosine(const Cosine&) = default;
+  explicit Cosine(const std::string& feature_name);
+
+  std::shared_ptr<BaseOperator> Clone() const override;
+
+  const Feature* Evaluate(Context*) override;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_COSIN_H_

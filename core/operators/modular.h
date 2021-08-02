@@ -19,17 +19,18 @@
 #include <string>
 
 #include "core/operators/binary_operator.h"
-namespace perception_feature {
+namespace clink {
 class Modular : public BinaryOperator {
  public:
   Modular();
+
   Modular(const std::string& first_feature, const std::string& second_feature);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
+
+  const Feature* Evaluate(Context*) override;
+
   std::shared_ptr<BaseOperator> Clone() const override;
 
- protected:
-  Modular(const Modular&) = default;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_MODULAR_H_

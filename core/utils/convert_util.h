@@ -19,28 +19,105 @@
 #include <string>
 
 #include "core/common/common.h"
-namespace perception_feature {
+#include "core/utils/feature_internal.h"
+#include "core/utils/feature_util.h"
+namespace clink {
 class ConvertUtil {
  public:
-  static const std::string& ToString(const Feature& any, std::string& result);
-  static inline void ToDouble(const Feature& any, double& value) {
+  static const std::string& ToString(const proto::Record& any,
+                                     std::string& result);
+
+  // static inline const std::string& ToString(const Feature& feature,
+  //                                           std::string& result) {
+  //   result = "";
+  //   switch (feature.data_type()) {
+  //     case proto::DT_STRING:
+  //       result = GetFeatureValues<std::string>(feature).Get(0);
+  //       break;
+  //     case proto::DT_INT32:
+  //       result = std::to_string(GetFeatureValues<int32_t>(feature).Get(0));
+  //       break;
+  //     case proto::DT_INT64:
+  //       result = std::to_string(GetFeatureValues<int64_t>(feature).Get(0));
+  //       break;
+  //     case proto::DT_FLOAT:
+  //       result = std::to_string(GetFeatureValues<float>(feature).Get(0));
+  //       break;
+  //     case proto::DT_DOUBLE:
+  //       result = std::to_string(GetFeatureValues<double>(feature).Get(0));
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  //   return result;
+  // }
+
+  // static inline void ToDouble(const Feature& feature, double& value) {
+  //   value = 0;
+  //   switch (FeatureUtil::GetType(feature)) {
+  //     case proto::DT_DOUBLE:
+  //       value = GetFeatureValues<double>(feature).Get(0);
+  //       break;
+  //     case proto::DT_FLOAT:
+  //       value = GetFeatureValues<float>(feature).Get(0);
+  //       break;
+  //     case proto::DT_INT32:
+  //       value = GetFeatureValues<int>(feature).Get(0);
+  //       break;
+  //     case proto::DT_INT64:
+  //       value = GetFeatureValues<int64_t>(feature).Get(0);
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // }
+
+  static inline void ToDouble(const proto::Record& any, double& value) {
     value = 0;
-    if (any.has_double_list()) {
-      value = any.double_list().value(0);
-    } else if (any.has_float_list()) {
-      value = any.float_list().value(0);
-    } else if (any.has_int64_list()) {
-      value = any.int64_list().value(0);
-    } else if (any.has_int_list()) {
-      value = any.int_list().value(0);
+    switch (any.kind_case()) {
+      case proto::Record::kDoubleList:
+        value = GetFeatureValues<double>(any).Get(0);
+        break;
+      case proto::Record::kFloatList:
+        value = GetFeatureValues<float>(any).Get(0);
+        break;
+      case proto::Record::kIntList:
+        value = GetFeatureValues<int>(any).Get(0);
+        break;
+      case proto::Record::kInt64List:
+        value = GetFeatureValues<int64_t>(any).Get(0);
+        break;
+      default:
+        break;
     }
   }
-  static void ToInt(const Feature&, int&);
-  static void ToFloat(const Feature& any, float& value);
-  static const std::string* ToString(const Feature& any);
-  //  static void ToIntArray(const Feature& feature, std::vector<int> value);
+
+  static void ToInt(const proto::Record&, int&);
+
+  static void ToFloat(const proto::Record& any, float& value);
+
+  // static inline void ToFloat(const Feature& feature, float& value) {
+  //   value = 0;
+  //   switch (feature.data_type()) {
+  //     case proto::DT_INT32:
+  //       value = GetFeatureValues<int32_t>(feature).Get(0);
+  //       break;
+  //     case proto::DT_INT64:
+  //       value = GetFeatureValues<int64_t>(feature).Get(0);
+  //       break;
+  //     case proto::DT_FLOAT:
+  //       value = GetFeatureValues<float>(feature).Get(0);
+  //       break;
+  //     case proto::DT_DOUBLE:
+  //       value = GetFeatureValues<double>(feature).Get(0);
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // }
+  static const std::string* ToString(const proto::Record& any);
 };
 
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_UTILS_CONVERT_UTIL_H_

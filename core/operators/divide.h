@@ -21,17 +21,17 @@
 #include <string>
 
 #include "core/operators/binary_operator.h"
-namespace perception_feature {
+namespace clink {
 class Divide : public BinaryOperator {
  public:
   Divide();
-  Divide(const std::string&, const std::string&);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
-  std::shared_ptr<BaseOperator> Clone() const override;
 
- protected:
-  Divide(const Divide&) = default;
+  Divide(const std::string&, const std::string&);
+
+  const Feature* Evaluate(Context*) override;
+
+  std::shared_ptr<BaseOperator> Clone() const override;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_DIVIDE_H_

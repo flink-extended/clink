@@ -19,17 +19,17 @@
 #include <string>
 
 #include "core/operators/binary_operator.h"
-namespace perception_feature {
+namespace clink {
 class Subtract : public BinaryOperator {
  public:
   Subtract();
-  Subtract(const std::string& first_feature, const std::string& second_feature);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
-  std::shared_ptr<BaseOperator> Clone() const override;
 
- protected:
-  Subtract(const Subtract&) = default;
+  Subtract(const std::string& first, const std::string& second);
+
+  const Feature* Evaluate(Context*) override;
+
+  std::shared_ptr<BaseOperator> Clone() const override;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_SUBTRACT_H_

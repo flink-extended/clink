@@ -23,7 +23,7 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
-namespace perception_feature {
+namespace clink {
 namespace top_sort {
 template <typename T>
 using Relation = std::unordered_map<T, std::unordered_set<T>>;
@@ -82,5 +82,5 @@ bool BfsTraverse(const Relation<T>& feature_relation, std::vector<T>& res) {
 }
 }  // namespace top_sort
 
-}  // namespace perception_feature
+}  // namespace clink
 #endif  // CORE_UTILS_TOP_SORT_H_

@@ -17,7 +17,7 @@
 #define CORE_UTILS_CONFIG_MANAGER_H_
 #include <iostream>
 #include <string>
-namespace perception_feature {
+namespace clink {
 class ConfigManager {
  public:
   static int FetchConfig(const std::string& remote_url,
@@ -28,6 +28,6 @@ class ConfigManager {
   static bool Md5Checksum(const std::string& archive_file,
                           const std::string& md5);
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_UTILS_CONFIG_MANAGER_H_

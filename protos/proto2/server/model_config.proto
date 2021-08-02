@@ -1,0 +1,23 @@
+syntax = "proto2";
+package clink.proto;
+
+enum ModelOp{
+  OP_RESERVE = 0;
+  MODEL_LOAD = 1;
+  MODEL_RELOAD = 2;
+  MODEL_UNLOAD = 3;
+}
+
+message ModelConf{
+  string biz_id = 1;
+  string version = 3;
+  string md5 = 4;
+  string size = 5;
+  string remote_url = 6;
+  string update_time = 7;
+  ModelOp model_op = 8;
+}
+
+message ModelConfList{
+  repeated ModelConf models = 1;
+}

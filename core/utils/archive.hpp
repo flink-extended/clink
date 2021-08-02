@@ -26,7 +26,7 @@
 #include <iostream>
 #include <string>
 
-namespace perception_feature {
+namespace clink {
 class Archive {
   static void errmsg(struct archive *handler) {
     std::cerr << archive_error_string(handler) << std::endl;
@@ -107,5 +107,5 @@ class Archive {
     return r;
   }
 };
-}  // namespace perception_feature
+}  // namespace clink
 #endif  // CORE_UTILS_ARCHIVE_HPP_

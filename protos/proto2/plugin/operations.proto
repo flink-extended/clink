@@ -1,0 +1,23 @@
+syntax = "proto2";
+import public "common.proto";
+package perception_feature.proto;
+
+message Features{
+  repeated RecordEntry feature_list = 1;
+}
+message Transform{
+  optional string formula = 1;
+  repeated RecordEntry params = 2 ;
+}
+message Operation{
+  repeated string input_features = 1;
+  optional string output_feature = 2;
+  optional int32 feature_size = 3;
+  optional FeatureType output_feature_type = 4;//输出特征类型 ：离散特征/连续特征
+  repeated  Transform transform = 5;
+}
+message OperationList{
+  optional string version = 1;
+  optional OutputFormat output_format = 2;
+  repeated Operation operation = 3;
+}

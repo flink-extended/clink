@@ -20,17 +20,19 @@
 #include <string>
 
 #include "core/operators/unary_operator.h"
-namespace perception_feature {
+namespace clink {
 class Keep : public UnaryOperator {
  public:
   Keep();
-  explicit Keep(const std::string& feature_name);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&);
-  std::shared_ptr<BaseOperator> Clone() const;
 
- protected:
-  Keep(const Keep&) = default;
+  explicit Keep(const std::string& feature_name);
+
+  int Evaluate(const FeatureMap&, Feature**);
+
+  const Feature* Evaluate(Context*) override;
+
+  std::shared_ptr<BaseOperator> Clone() const override;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_KEEP_H_

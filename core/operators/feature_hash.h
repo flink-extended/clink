@@ -21,26 +21,27 @@
 #include <vector>
 
 #include "core/operators/base_operator.h"
-namespace perception_feature {
+namespace clink {
 class FeatureHash : public BaseOperator {
  public:
   FeatureHash();
+
   FeatureHash(const std::string& feature_name, const OpParamMap& param_map);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
+
+  const Feature* Evaluate(Context*) override;
+
   std::shared_ptr<BaseOperator> Clone() const override;
+
   bool ParseParamMap(const std::string& name,
                      const OpParamMap& param_map) override;
 
   bool ParseParamMap(const std::vector<std::string>& variables,
                      const OpParamMap& param_map) override;
 
- protected:
-  FeatureHash(const FeatureHash&);
-
  private:
   int bin_size_;  //哈希分桶大小
   bool ParseParam(const std::string& name, const OpParamMap& param_map);
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_FEATURE_HASH_H_

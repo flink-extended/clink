@@ -15,30 +15,43 @@
 
 #ifndef CORE_COMMON_OPERATION_NODE_H_
 #define CORE_COMMON_OPERATION_NODE_H_
+#include <google/protobuf/arena.h>
+
 #include <memory>
 #include <stdexcept>
 #include <string>
 
 #include "core/common/common.h"
-namespace perception_feature {
+#include "core/common/context.h"
+
+namespace clink {
+
 typedef enum { OP_OPERAND, OP_OPERATOR } OperationType;
+
 class OperationNode {
  public:
-  OperationNode();
-  virtual ~OperationNode();
-  virtual int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) = 0;
+  OperationNode() = default;
+
+  virtual ~OperationNode() = default;
+
+  virtual const Feature* Evaluate(Context*) = 0;
+
   virtual const std::string* GetOperationName() = 0;
-  const OperationType& GetOperationType();
-  void SetOperationType(const OperationType&);
+
+  const OperationType& GetOperationType() { return operation_type_; }
+
+  void SetOperationType(const OperationType& operation_type) {
+    operation_type_ = operation_type;
+  }
 
  protected:
-  OperationNode(const OperationNode&);
+  explicit OperationNode(const OperationNode&) = default;
 
  private:
   OperationNode& operator=(const OperationNode&);
   OperationType operation_type_;
 };
 
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_COMMON_OPERATION_NODE_H_

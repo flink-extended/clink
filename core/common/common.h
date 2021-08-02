@@ -12,10 +12,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ==============================================================================*/
-
 #ifndef CORE_COMMON_COMMON_H_
 #define CORE_COMMON_COMMON_H_
-#include <city.h>
 
 #include <memory>
 #include <string>
@@ -25,30 +23,26 @@
 #include "core/protos/datasource.pb.h"
 #include "core/protos/interface.pb.h"
 #include "core/protos/operations.pb.h"
-namespace perception_feature {
-#define MAKE_HASH(key) CityHash64((key).c_str(), key.size())
+#include "core/utils/murmurhash.h"
+namespace clink {
+#define MAKE_HASH(key) MurmurHash64A(key.c_str(), key.size(), 0)
 using Feature = proto::Record;
 using OpParam = proto::Record;
-// using OpParams = proto::OpParams;
-// union Feature{
-//  proto::Record record_;
-//  std::vector<float> *vector_;
-//};
-using FeatureMap = std::unordered_map<int64_t, std::shared_ptr<Feature>>;
+using FeatureMap = std::unordered_map<int64_t, Feature*>;
 using OpParamMap = std::unordered_map<std::string, proto::Record>;
 using OperationList = proto::OperationList;
+using Operation = proto::Operation;
 using Transform = proto::Transform;
 using DataSource = proto::DataSource;
 using DataSourceList = proto::DataSourceList;
 using CsvDataConfig = proto::CsvDataConfig;
 using CsvDataConfigList = proto::CsvDataConfigList;
-using FeatureRequest = proto::FeatureRequest;
-using FeatureResponse = proto::FeatureResponse;
 using OutputFromat = proto::OutputFormat;
 using FeatureType = proto::FeatureType;
 using IVRecordEntry = proto::IVRecordEntry;
 using IVRecordList = proto::IVRecordList;
 using SampleRecord = proto::SampleRecord;
+using DinResultRecord = proto::DinResultRecord;
 typedef enum {
   STATUS_OK = 0,
   ERR_NOT_INIT = 1,
@@ -81,10 +75,10 @@ typedef enum {
   ERR_READ_FILE = 27,
   ERR_INDEX_OUT_BOUNDARY = 28,
   ERR_INDEX_VALUE_UNEQUAL = 29,
-} FeatureStatus;
+} StatusCode;
 
 const char digits[] = "0123456789";
 const char integer_chars[] = "0123456789-eE";
 const char real_chars[] = "0123456789-eE.";
-}  // namespace perception_feature
+}  // namespace clink
 #endif  // CORE_COMMON_COMMON_H_

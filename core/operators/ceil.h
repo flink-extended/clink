@@ -20,17 +20,17 @@
 #include <string>
 
 #include "core/operators/unary_operator.h"
-namespace perception_feature {
+namespace clink {
 class Ceil : public UnaryOperator {
  public:
   Ceil();
-  explicit Ceil(const std::string& feature_name);
-  int Evaluate(const FeatureMap&, std::shared_ptr<Feature>&) override;
-  std::shared_ptr<BaseOperator> Clone() const override;
 
- protected:
-  Ceil(const Ceil&);
+  explicit Ceil(const std::string& feature_name);
+
+  const Feature* Evaluate(Context*) override;
+
+  std::shared_ptr<BaseOperator> Clone() const override;
 };
-}  // namespace perception_feature
+}  // namespace clink
 
 #endif  // CORE_OPERATORS_CEIL_H_
