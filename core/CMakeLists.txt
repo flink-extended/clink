@@ -13,6 +13,6 @@ if (PLUGIN_ARCHIVE)
     target_link_libraries(${PROJECT_NAME} -fPIC -Wl,--whole-archive libglog.a libprotobuf.a libarchive.a libcityhash.a -Wl,--no-whole-archive -rdynamic -lstdc++ curl)
     #target_link_libraries(${PROJECT_NAME}_plugin -fPIC -Wl,-all_load libglog.a libprotobuf.a libarchive.a libcityhash.a -Wl,-noall_load -rdynamic -lstdc++ curl)
 else ()
-    target_link_libraries(${PROJECT_NAME}  -lprotobuf -rdynamic -lstdc++ curl -larchive -ltcmalloc -lprofiler -lbrpc)
+    target_link_libraries(${PROJECT_NAME} -lglog -lprotobuf -rdynamic -lstdc++ curl -larchive -ltcmalloc)
 endif ()
 

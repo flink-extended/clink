@@ -15,7 +15,7 @@
 
 #include "parser_factory.h"
 
-#include <butil/logging.h>
+#include <glog/logging.h>
 
 #include <fstream>
 
@@ -37,7 +37,7 @@ std::shared_ptr<SourceParserBase> SourceFactory::CreateSourceParser(
                   std::istreambuf_iterator<char>());
   ifs.close();
   proto::DataSourceList data_source_list;
-  int status = ProtoJson::json2pb(json_str, data_source_list, true);
+  int status = ProtoJson::JsonToProto(json_str, data_source_list, true);
   if (status != STATUS_OK) {
     LOG(ERROR) << "Parse config file  error, conf:" << config_file;
     return nullptr;

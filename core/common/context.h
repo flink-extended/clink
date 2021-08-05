@@ -33,7 +33,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ==============================================================================*/
- 
+
 #include "core/common/common.h"
 #include "core/config/feature_config.h"
 
@@ -84,6 +84,10 @@ class Context {
   }
 
   std::shared_ptr<SourceParserBase>& parser() { return parser_; }
+  const std::vector<std::vector<std::shared_ptr<FeatureItem>>>*
+  extract_sequence() {
+    return extract_sequence_;
+  }
 
  private:
   std::unordered_map<int64_t, const Feature*> var_table_;
@@ -94,7 +98,8 @@ class Context {
 
   FeatureConfig* config_;
 
-  // std::vector<std::vector<FeatureItem>>* extract_sequence_;  //特征提取顺序
+  const std::vector<std::vector<std::shared_ptr<FeatureItem>>>*
+      extract_sequence_;  //特征提取顺序
 
   // std::vector<FeatureItem>* output_sequence_;  //特征输出顺序
 };

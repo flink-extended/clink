@@ -15,7 +15,7 @@
 
 #include "core/operators/bucket.h"
 
-#include <butil/logging.h>
+#include <glog/logging.h>
 
 #include <iostream>
 #include <string>

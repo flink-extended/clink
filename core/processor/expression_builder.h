@@ -15,7 +15,7 @@
 
 #ifndef CORE_PROCESSOR_EXPRESSION_BUILDER_H_
 #define CORE_PROCESSOR_EXPRESSION_BUILDER_H_
-#include <butil/logging.h>
+#include <glog/logging.h>
 
 #include <memory>
 #include <string>

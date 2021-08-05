@@ -15,7 +15,7 @@
 
 #include "core/config/operation_meta_item.h"
 
-#include <butil/logging.h>
+#include <glog/logging.h>
 
 #include <map>
 

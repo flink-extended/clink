@@ -12,10 +12,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ==============================================================================*/
- 
+
 #ifndef CORE_UTILS_TOPSORT_H_
 #define CORE_UTILS_TOPSORT_H_
-#include <butil/logging.h>
+#include <glog/logging.h>
 
 #include <memory>
 #include <queue>

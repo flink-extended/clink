@@ -15,8 +15,8 @@
 
 #include "core/processor/clink_impl.h"
 
-#include <butil/logging.h>
 #include <gflags/gflags.h>
+#include <glog/logging.h>
 
 #include <algorithm>
 #include <chrono>
@@ -28,29 +28,22 @@
 #include "core/config/feature_config.h"
 #include "core/processor/clink.h"
 //#include "core/clinkimpl/feature_extract.h"
-#include <gperftools/profiler.h>
+// #include <libco/co_routine.h>
+// #include <libco/co_routine_inner.h>
 
 #include "core/common/operation_node.h"
 #include "core/source/source_parser_base.h"
 #include "core/utils/config_manager.h"
 #include "core/utils/convert_util.h"
 #include "core/utils/feature_util.h"
+
 // #include "omp.h"
 namespace clink {
-
-struct TaskResult {
-  const Feature *output;
-  const FeatureItem *item;
-  TaskResult(const FeatureItem *item, const Feature *output) {
-    this->item = item;
-    this->output = output;
-  }
-};
 
 ClinkImpl::ClinkImpl() : current_config_index_(0) {
   configs_.emplace_back(std::make_shared<FeatureConfig>());
   configs_.emplace_back(std::make_shared<FeatureConfig>());
-  thread_pool_ = std::make_unique<SimpleThreadPool>(5);
+  // thread_pool_ = std::make_unique<SimpleThreadPool>(5);
 }
 
 std::unique_ptr<Context> ClinkImpl::BuildContext() {
@@ -116,7 +109,7 @@ int ClinkImpl::ReloadConfig(const std::string &config_path, bool first) {
 }
 
 template <typename T>
-int ClinkImpl::FeatureExtract(const T &input, std::vector<int> *index,
+int ClinkImpl::FeatureExtract(const T &input, std::vector<uint32_t> *index,
                               std::vector<float> *value) {
   index->clear();
   value->clear();
@@ -125,8 +118,9 @@ int ClinkImpl::FeatureExtract(const T &input, std::vector<int> *index,
   }
   auto context = BuildContext();
   const int &size = context->config()->operation_meta()->total_feature_size();
-  index->reserve(size);
-  value->reserve(size);
+  // index->reserve(size);
+  // value->reserve(size);
+
   if (context == nullptr) {
     return ERR_INVALID_CONFIG;
   }
@@ -147,64 +141,99 @@ int ClinkImpl::Extract(Context *context) {
   auto operation_meta = context->config()->operation_meta();
   auto &extract_sequence = operation_meta->extract_sequence();
   for (auto &sequence : extract_sequence) {
-    std::vector<std::shared_ptr<TaskResult>> results(sequence.size(),
-                                                     std::move(nullptr));
-
-    // std::vector<std::future<void>> feature_results;
-    //#pragma omp parallel for
     for (int i = 0; i < sequence.size(); ++i) {
       auto &item = sequence.at(i);
       auto operation_meta_item = operation_meta->GetOperationMetaItem(*item);
       if (operation_meta_item == nullptr) {
         continue;
       }
-      // feature_results.emplace_back(thread_pool_->enqueue(
-      //     std::bind(&ClinkImpl::ExtractParallel, this, operation_meta_item,
-      //               item.get(), context, &results[i])));
-
-      ExtractParallel(operation_meta_item, item.get(), context, &results[i]);
-    }
-    // for (auto &&r : feature_results) {
-    //   r.get();
-    // }
-    // bg.Start();
-    for (auto &result : results) {
+      auto result = ExtractParallel(operation_meta_item, item.get(), context);
       if (result != nullptr) {
-        context->Set(result->item->id(), result->output);
+        context->Set(item->id(), result);
       }
     }
   }
   return STATUS_OK;
 }
 
-void ClinkImpl::ExtractParallel(const OperationMetaItem *op_meta_item,
-                                const FeatureItem *item, Context *context,
-                                std::shared_ptr<TaskResult> *task_result) {
-  *task_result = nullptr;
+// int ClinkImpl::Extract(Context *context) {
+//   // auto operation_meta = context->config()->operation_meta();
+//   // auto &extract_sequence = operation_meta->extract_sequence();
+//   for (auto &sequence : *context->extract_sequence()) {
+//     std::vector<TaskItem> task_list;
+//     task_list.reserve(sequence.size());
+//     stCoRoutine_t *co[sequence.size()];
+//     std::vector<std::unique_ptr<stCoRoutine_t>> routines;
+//     for (int i = 1; i < sequence.size(); ++i) {
+//       auto &item = sequence.at(i);
+//       // auto task_item = std::make_unique<TaskItem>(item.get(), context);
+//       task_list.emplace_back(std::move(TaskItem(item.get(), context)));
+//       co_create(&co[i], nullptr, ExtractParallel, &task_list[i]);
+//       co_resume(co[i]);
+//     }
+//     for (int i = 1; i < sequence.size(); ++i) {
+//       co_release(co[i]);
+//       if (task_list[i].output != nullptr) {
+//         context->Set(task_list[i].item->id(), task_list[i].output);
+//       }
+//     }
+//   }
+
+//   return STATUS_OK;
+// }  // namespace clink
+
+const Feature *ClinkImpl::ExtractParallel(const OperationMetaItem *op_meta_item,
+                                          const FeatureItem *item,
+                                          Context *context) {
   if (context == nullptr || op_meta_item == nullptr || item == nullptr) {
-    return;
+    return nullptr;
   }
-  *task_result = std::make_unique<TaskResult>(item, nullptr);
   auto &tree = op_meta_item->expression_tree();
   if (tree == nullptr) {
     LOG(INFO) << "feature " << op_meta_item->output_feature().name()
               << "expression tree is empty";
-    return;
+    return nullptr;
   }
-  auto result = tree->Evaluate(context);
-  // FeatureResult feature_result(result, item.get());
-  (*task_result)->output = result;
+  return tree->Evaluate(context);
 }
 
+// void *ClinkImpl::ExtractParallel(void *args) {
+//   co_enable_hook_sys();
+//   TaskItem *env = (TaskItem *)args;
+
+//   if (env == nullptr || env->item == nullptr || env->context == nullptr) {
+//     return nullptr;
+//   }
+//   auto operation_meta = env->context->config()->operation_meta();
+
+//   auto operation_meta_item =
+//   operation_meta->GetOperationMetaItem(*env->item); if (operation_meta_item
+//   == nullptr) {
+//     return nullptr;
+//   }
+//   auto &tree = operation_meta_item->expression_tree();
+//   if (tree == nullptr) {
+//     LOG(INFO) << "feature " << operation_meta_item->output_feature().name()
+//               << "expression tree is empty";
+//     return nullptr;
+//   }
+//   auto result = tree->Evaluate(env->context);
+//   env->output = result;
+//   // std::string res;
+//   // ConvertUtil::ToString(*result, res);
+//   // std::cout << res << std::endl;
+//   return nullptr;
+// }
+
 template int ClinkImpl::FeatureExtract(const std::string &input,
-                                       std::vector<int> *index,
+                                       std::vector<uint32_t> *index,
                                        std::vector<float> *value);
 
 template int ClinkImpl::FeatureExtract(const Sample &input,
-                                       std::vector<int> *index,
+                                       std::vector<uint32_t> *index,
                                        std::vector<float> *value);
 
 template int ClinkImpl::FeatureExtract(const SampleRecord &input,
-                                       std::vector<int> *index,
+                                       std::vector<uint32_t> *index,
                                        std::vector<float> *value);
 }  // namespace clink

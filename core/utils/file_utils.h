@@ -15,7 +15,7 @@
 
 #ifndef CORE_UTILS_FILE_UTILS_H_
 #define CORE_UTILS_FILE_UTILS_H_
-#include <butil/logging.h>
+#include <glog/logging.h>
 #include <sys/dir.h>
 #include <sys/stat.h>
 #include <unistd.h>

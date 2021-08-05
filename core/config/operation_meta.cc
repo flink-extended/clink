@@ -15,7 +15,7 @@
 
 #include "core/config/operation_meta.h"
 
-#include <butil/logging.h>
+#include <glog/logging.h>
 
 #include <fstream>
 #include <unordered_set>
@@ -46,7 +46,7 @@ int OperationMeta::LoadOperation(const std::string& config_path) {
     return ERR_CONFIG_EMPTY;
   }
   OperationList operation_list;
-  int res = ProtoJson::json2pb(json_str, operation_list, true);
+  int res = ProtoJson::JsonToProto(json_str, operation_list, true);
   if (res != STATUS_OK) {
     return res;
   }

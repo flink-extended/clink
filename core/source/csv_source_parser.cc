@@ -37,7 +37,7 @@ int CsvSourceParser::LoadConfig(const std::string &conf_path) {
                   std::istreambuf_iterator<char>());
   ifs.close();
   CsvDataConfigList csv_data_list;
-  int res = ProtoJson::json2pb(json_str, csv_data_list, true);
+  int res = ProtoJson::JsonToProto(json_str, csv_data_list, true);
   if (res != STATUS_OK) {
     LOG(ERROR) << "Parse config file  error, conf:" << data_source_config;
     return res;

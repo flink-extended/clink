@@ -14,7 +14,7 @@
  ==============================================================================*/
 #include "core/operators/to_vector.h"
 
-#include <butil/logging.h>
+#include <glog/logging.h>
 #include <core/utils/feature_internal.h>
 
 #include <algorithm>

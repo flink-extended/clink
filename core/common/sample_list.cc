@@ -15,14 +15,14 @@
 
 #include "core/common/sample_list.h"
 
-#include <butil/logging.h>
+#include <glog/logging.h>
 #include <google/protobuf/arena.h>
 
 #include <string>
 
 #include "core/common/common.h"
 #include "core/utils/feature_internal.h"
-
+#include "core/utils/util.h"
 namespace clink {
 
 Sample::Sample(google::protobuf::Arena& arena) : feature_index_(-1) {

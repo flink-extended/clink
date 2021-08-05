@@ -85,15 +85,16 @@ class FeatureUtil {
 
   static void ToIndexValue(const Feature&,
                            const OperationMetaItem* operation_config,
-                           const int& start_index, std::vector<int>* index,
+                           const uint32_t& start_index,
+                           std::vector<uint32_t>* index,
                            std::vector<float>* value);
 
   static void CalcIndexValueVector(const Feature& feature,
-                                   const int& start_index,
-                                   std::vector<int>* index,
+                                   const uint32_t& start_index,
+                                   std::vector<uint32_t>* index,
                                    std::vector<float>* value);
 
-  static void BuildResponse(Context* context, std::vector<int>* index,
+  static void BuildResponse(Context* context, std::vector<uint32_t>* index,
                             std::vector<float>* value);
 
   static void BuildResponse(const OperationMeta& operation_meta,
@@ -102,11 +103,11 @@ class FeatureUtil {
 
   static void ToIndexValue(const Feature& feature,
                            const OperationMetaItem* operation_config,
-                           const int& start_index,
+                           const uint32_t& start_index,
                            DinResultRecord* din_result_record);
 
   static void CalcIndexValueVector(const Feature& feature,
-                                   const int& start_index,
+                                   const uint32_t& start_index,
                                    DinResultRecord* din_result_record);
 };
 }  // namespace clink

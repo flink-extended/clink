@@ -25,8 +25,6 @@
 #include "core/common/context.h"
 #include "core/common/sample_list.h"
 #include "core/processor/clink.h"
-#include "core/utils/bthread_group.h"
-#include "core/utils/simplp_thread_pool.h"
 namespace clink {
 
 class FeatureConfig;
@@ -44,9 +42,8 @@ class ClinkImpl {
   int LoadConfig(const std::string& remote_url, const std::string& config_path);
 
   template <typename T>
-  int FeatureExtract(const T& input, std::vector<int>* index,
+  int FeatureExtract(const T& input, std::vector<uint32_t>* index,
                      std::vector<float>* value);
-
 
  private:
   int ReloadConfig(const std::string&, bool first = false);
@@ -55,9 +52,10 @@ class ClinkImpl {
 
   int Extract(Context* context);
 
-  void ExtractParallel(const OperationMetaItem* op_meta,
-                       const FeatureItem* item, Context* context,
-                       std::shared_ptr<TaskResult>* task_result);
+  const Feature* ExtractParallel(const OperationMetaItem* op_meta_item,
+                                 const FeatureItem* item, Context* context);
+
+  // static void* ExtractParallel(void* args);
 
   int BuildResponse(Context* context);
 
@@ -67,17 +65,6 @@ class ClinkImpl {
   int current_config_index_;
 
   bool init_status_;
-
-  class ExtractTask : public clink::BthreadGroup::BthreadTask {
-   public:
-    ExtractTask(std::function<void()>&& cb) : callback_(cb) {}
-    inline void Run() override { callback_(); }
-
-   private:
-    std::function<void()> callback_;
-  };  // ExtractTask
-
-  std::unique_ptr<SimpleThreadPool> thread_pool_;
 };
 
 }  // namespace clink

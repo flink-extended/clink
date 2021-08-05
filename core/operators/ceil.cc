@@ -15,7 +15,7 @@
 
 #include "core/operators/ceil.h"
 
-#include <butil/logging.h>
+#include <glog/logging.h>
 #include <math.h>
 
 #include "core/utils/convert_util.h"

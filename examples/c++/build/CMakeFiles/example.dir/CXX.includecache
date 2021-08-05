@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../../../output/core/include/clink.h
+memory
+-
+string
+-
+vector
+-
+
+/home/examples/c++/example.cc
+sys/time.h
+-
+unistd.h
+-
+cstdio
+-
+ctime
+-
+fstream
+-
+iostream
+-
+clink.h
+/home/examples/c++/clink.h
+

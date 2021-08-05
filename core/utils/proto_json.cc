@@ -1,18 +1,14 @@
 /*
  The MIT License (MIT)
-
 Copyright (c) 2013 shafreeck renenglish at gmail dot com
-
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
 the Software without restriction, including without limitation the rights to
 use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 the Software, and to permit persons to whom the Software is furnished to do so,
 subject to the following conditions:
-
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -20,32 +16,30 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
 #include "core/utils/proto_json.h"
 
 #include <butil/logging.h>
 
 #include <iostream>
 namespace clink {
-void ProtoJson::hex_encode(const std::string& input, std::string& output) {
-  static const char* const lut = "0123456789abcdef";
-  size_t len = input.length();
 
-  output.reserve(2 * len);
-  for (size_t i = 0; i < len; ++i) {
-    const unsigned char c = input[i];
-    output.push_back(lut[c >> 4]);
-    output.push_back(lut[c & 15]);
-  }
-  return;
-}
+// void ProtoJson::hex_encode(const std::string& input, std::string& output) {
+//   static const char* const lut = "0123456789abcdef";
+//   size_t len = input.length();
+//   output.reserve(2 * len);
+//   for (size_t i = 0; i < len; ++i) {
+//     const unsigned char c = input[i];
+//     output.push_back(lut[c >> 4]);
+//     output.push_back(lut[c & 15]);
+//   }
+//   return;
+// }
 
 std::shared_ptr<rapidjson::Value> ProtoJson::field2json(
     const Message& msg, const FieldDescriptor* field,
     rapidjson::Value::AllocatorType& allocator) {
   const Reflection* ref = msg.GetReflection();
   const bool repeated = field->is_repeated();
-
   size_t array_size = 0;
   if (repeated) {
     array_size = ref->FieldSize(msg, field);
@@ -197,7 +191,6 @@ std::shared_ptr<rapidjson::Value> ProtoJson::parse_message(
   const Descriptor* d = msg.GetDescriptor();
   if (!d) return nullptr;
   size_t count = d->field_count();
-
   std::shared_ptr<rapidjson::Value> root =
       std::make_shared<rapidjson::Value>(rapidjson::kObjectType);
   if (!root) return nullptr;
@@ -206,7 +199,6 @@ std::shared_ptr<rapidjson::Value> ProtoJson::parse_message(
     if (!field) {
       return nullptr;
     }
-
     const Reflection* ref = msg.GetReflection();
     if (!ref) {
       return nullptr;
@@ -231,8 +223,8 @@ void ProtoJson::json2string(const std::shared_ptr<rapidjson::Value>& json,
   str.append(buffer.GetString(), buffer.GetSize());
 }
 
-int ProtoJson::json2pb(const std::string& json, Message& msg,
-                       const bool& base64_encode) {
+int ProtoJson::JsonToProto(const std::string& json, Message& msg,
+                           const bool& base64_encode) {
   rapidjson::Document root;
   root.Parse(json.c_str());
   if (root.HasParseError()) {
@@ -297,7 +289,6 @@ int ProtoJson::json2field(const rapidjson::Value& json, Message& msg,
     else                                 \
       ref->sfunc(&msg, field, value);    \
   } while (0)
-
     case FieldDescriptor::CPPTYPE_STRING: {
       if (!json.IsString()) return ERR_INVALID_JSON;
       std::string value = json.GetString();
@@ -314,13 +305,11 @@ int ProtoJson::json2field(const rapidjson::Value& json, Message& msg,
     }
     case FieldDescriptor::CPPTYPE_INT32: {
       if (!json.IsInt()) return ERR_INVALID_JSON;
-
       _SET_OR_ADD(SetInt32, AddInt32, json.GetInt());
       break;
     }
     case FieldDescriptor::CPPTYPE_UINT32: {
       if (!json.IsUint()) return ERR_INVALID_JSON;
-
       _SET_OR_ADD(SetUInt32, AddUInt32, json.GetUint());
       break;
     }

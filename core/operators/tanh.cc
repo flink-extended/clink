@@ -15,7 +15,7 @@
 
 #include "core/operators/tanh.h"
 
-#include <butil/logging.h>
+#include <glog/logging.h>
 
 #include "core/utils/convert_util.h"
 namespace clink {

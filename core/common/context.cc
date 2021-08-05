@@ -12,7 +12,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  ==============================================================================*/
- 
+
 #include "core/common/context.h"
 
 #include "core/source/source_parser_base.h"
@@ -29,6 +29,7 @@ Context::Context(FeatureConfig* config) {
   // config_ = config.get();
   parser_ = config->source_parser();
   config_ = config;
+  extract_sequence_ = &config_->operation_meta()->extract_sequence();
 }
 
 }  // namespace clink

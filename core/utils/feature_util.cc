@@ -15,7 +15,7 @@
 
 #include "core/utils/feature_util.h"
 
-#include <butil/logging.h>
+#include <glog/logging.h>
 
 #include <algorithm>
 
@@ -66,7 +66,8 @@ int FeatureUtil::GetSize(const proto::Record& data) {
 
 void FeatureUtil::ToIndexValue(const Feature& feature_result,
                                const OperationMetaItem* operation_config,
-                               const int& start_index, std::vector<int>* index,
+                               const uint32_t& start_index,
+                               std::vector<uint32_t>* index,
                                std::vector<float>* value) {
   if (!feature_result.IsInitialized() ||
       FeatureUtil::GetSize(feature_result) <= 0 ||
@@ -131,8 +132,8 @@ void FeatureUtil::ToIndexValue(const Feature& feature_result,
 }
 
 void FeatureUtil::CalcIndexValueVector(const Feature& feature,
-                                       const int& start_index,
-                                       std::vector<int>* index,
+                                       const uint32_t& start_index,
+                                       std::vector<uint32_t>* index,
                                        std::vector<float>* value) {
   if (nullptr == index || nullptr == value) {
     return;
@@ -147,7 +148,7 @@ void FeatureUtil::CalcIndexValueVector(const Feature& feature,
   }
 }
 
-void FeatureUtil::BuildResponse(Context* context, std::vector<int>* index,
+void FeatureUtil::BuildResponse(Context* context, std::vector<uint32_t>* index,
                                 std::vector<float>* value) {
   if (nullptr == index || nullptr == value) {
     return;
@@ -205,7 +206,7 @@ void FeatureUtil::BuildResponse(const OperationMeta& operation_meta,
 
 void FeatureUtil::ToIndexValue(const Feature& feature,
                                const OperationMetaItem* operation_config,
-                               const int& start_index,
+                               const uint32_t& start_index,
                                DinResultRecord* din_result_record) {
   if (!feature.IsInitialized() || FeatureUtil::GetSize(feature) <= 0 ||
       nullptr == operation_config || nullptr == din_result_record) {
@@ -257,7 +258,7 @@ void FeatureUtil::ToIndexValue(const Feature& feature,
 }
 
 void FeatureUtil::CalcIndexValueVector(const Feature& feature,
-                                       const int& start_index,
+                                       const uint32_t& start_index,
                                        DinResultRecord* din_result_record) {
   if (nullptr == din_result_record) {
     return;

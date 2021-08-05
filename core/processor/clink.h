@@ -47,13 +47,13 @@ class Clink {
 
   int LoadConfig(const std::string &remote_url, const std::string &config_path);
 
-  int FeatureExtract(const Sample &sample, std::vector<int> *index,
+  int FeatureExtract(const Sample &sample, std::vector<uint32_t> *index,
                      std::vector<float> *value);
 
-  int FeatureExtract(const std::string &input, std::vector<int> *index,
+  int FeatureExtract(const std::string &input, std::vector<uint32_t> *index,
                      std::vector<float> *value);
 
-  int FeatureExtract(const SampleRecord &input, std::vector<int> *index,
+  int FeatureExtract(const SampleRecord &input, std::vector<uint32_t> *index,
                      std::vector<float> *value);
 
  private:
@@ -64,10 +64,12 @@ extern "C" FEATURE_DLL_DECL Clink *load_plugin(void);
 extern "C" FEATURE_DLL_DECL void destroy_plugin(Clink *p);
 }  // namespace clink
 
-extern "C" FEATURE_DLL_DECL int FeatureExtractOffline(const char *remote_url,
-                                                      const char *local_path,
-                                                      const char *input,
+extern "C" FEATURE_DLL_DECL int FeatureOfflineInit(const char *remote_url,
+                                                   const char *local_path);
+
+extern "C" FEATURE_DLL_DECL int FeatureExtractOffline(const char *input,
                                                       char **output);
+
 extern "C" FEATURE_DLL_DECL int FeatureOfflineCleanUp(char *output);
 
 #endif  // CORE_PROCESSOR_FEATURE_PLUGIN_H_

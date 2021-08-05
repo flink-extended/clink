@@ -1,0 +1,1 @@
+/usr/bin/c++   -std=c++11   CMakeFiles/example.dir/example.cc.o  -o example   -L/home/examples/c++/../../output/core/lib  -Wl,-rpath,/home/examples/c++/../../output/core/lib -lclink -lpthread 

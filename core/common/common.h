@@ -75,9 +75,10 @@ typedef enum {
   ERR_READ_FILE = 27,
   ERR_INDEX_OUT_BOUNDARY = 28,
   ERR_INDEX_VALUE_UNEQUAL = 29,
+  ERR_JSON_TO_PROTO = 30,
 } StatusCode;
 
-const char digits[] = "0123456789";
+//const char digits[] = "0123456789";
 const char integer_chars[] = "0123456789-eE";
 const char real_chars[] = "0123456789-eE.";
 }  // namespace clink

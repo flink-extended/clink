@@ -16,7 +16,7 @@
 #ifndef CORE_UTILS_BIN2ASCII_H_
 #define CORE_UTILS_BIN2ASCII_H_
 
-#include <butil/logging.h>
+#include <glog/logging.h>
 
 #include <stdexcept>
 #include <string>

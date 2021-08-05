@@ -15,7 +15,7 @@
 
 #include "core/operators/standard.h"
 
-#include <butil/logging.h>
+#include <glog/logging.h>
 
 #include "core/utils/convert_util.h"
 #include "core/utils/feature_util.h"

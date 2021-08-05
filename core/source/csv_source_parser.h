@@ -15,7 +15,7 @@
 
 #ifndef CORE_SOURCE_CSV_SOURCE_PARSER_H_
 #define CORE_SOURCE_CSV_SOURCE_PARSER_H_
-#include <butil/logging.h>
+#include <glog/logging.h>
 #include <rapidjson/rapidjson.h>
 
 #include <fstream>
