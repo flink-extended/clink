@@ -1,3 +1,0 @@
-/home/examples/c++/build/CMakeFiles/rebuild_cache.dir
-/home/examples/c++/build/CMakeFiles/edit_cache.dir
-/home/examples/c++/build/CMakeFiles/example.dir
