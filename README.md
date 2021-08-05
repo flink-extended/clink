@@ -1,4 +1,4 @@
-
+![](https://github.com/Qihoo360/libfg/blob/master/docs/logo.png)
 # Clink编译
 ## Linux（Centos）
 ### Docker编译
