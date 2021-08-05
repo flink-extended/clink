@@ -1,0 +1,44 @@
+syntax = "proto3";
+package libfg.proto;
+import "common.proto";
+option java_package = "libfg.proto";
+
+message SampleRecord {
+  repeated FeatureRecord features = 1;
+}
+
+message SampleMap{
+  map<int32, SampleRecord> sample_map = 1;
+}
+
+message SampleRecordMap{
+  map<int32, SampleRecord> sample_map = 1;
+}
+message FeatureRequest {
+  string sid = 1;
+  string biz_name = 2;
+  string model_version = 3;
+  map<int32, SampleRecord> sample_map = 5;
+};
+
+//output format for DIN model
+message DinResultRecord{
+  repeated float index = 1 [packed = true];
+  repeated float value = 2 [packed = true];
+}
+message ResultRecord{
+  oneof kind {
+      DinResultRecord din_result = 1;
+  };
+}
+message FeatureResponse {
+  string sid = 1;
+  int32 err_no = 2;
+  string err_msg = 3;
+  OutputFormat output_format = 4;
+  map<int32, ResultRecord> result_map = 5;
+};
+
+service FeatureService {
+  rpc FeatureExtract(FeatureRequest) returns (FeatureResponse);
+};

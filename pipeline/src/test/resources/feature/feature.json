@@ -1,0 +1,78 @@
+{
+	"operations": [
+		{
+			"operName": "standardize",
+			 "params": {
+				"selectedCols": "[C14]",
+				"outputCols": "[C14_stand]"
+			}
+		},
+		{
+			"operName": "bucket",
+			"params": {
+				"selectedCols": "[C17]",
+				"outputCols": "[C17_bucket]",
+				"numBuckets": "10"
+			},
+			"extraParams": {
+				"indexOnly": "true"
+			}
+		},
+		{
+			"operName": "onehot",
+	        "params": {
+				"encode": "INDEX",
+				"dropLast": "true",
+				"handleInvalid": "KEEP",
+				"selectedCols": "[id]",
+				"outputCols": "[id_label]"
+			},
+			"extraParams": {
+				"indexOnly": "true"
+			}
+		},
+		{
+			"operName": "onehot",
+	        "params": {
+				"encode": "ASSEMBLED_VECTOR",
+				"dropLast": "true",
+				"handleInvalid": "KEEP",
+				"selectedCols": "[site_id]",
+				"outputCols": "[site_id_vec]"
+			},
+			"extraParams": {
+				"indexOnly": "false"
+			}
+		},
+		{
+			"operName": "udf",
+			"params": {
+				"clause": "LOG(ADD(1.0,C16))",
+				"handleInvalid": "KEEP",
+				"selectedCols": "[C16]",
+				"outputCols": "[C16_udf]"
+			}
+		},
+		{
+			"operName": "keep",
+			"params": {
+				"clause": "KEEP",
+				"handleInvalid": "KEEP",
+				"selectedCols": "[C18]",
+				"outputCols": "[C18]"
+			}
+		},
+		{
+			"operName": "tovector",
+			 "params": {
+				"selectedCols": "[C19]",
+				"outputCol": "C19_vec"
+			},
+			"extraParams": {
+				"vecSize": "128",
+				"innerDeli": "|"
+			}
+		}
+	]
+}
+
