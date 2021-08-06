@@ -13,7 +13,7 @@ public class Example {
     System.setProperty("jna.encoding", "UTF-8");
     // 调用
     String path = "./config";
-    String remote = "http://pub1-bjyt.s3.360.cn/test/test_clink_feature_engineering.tgz";
+    String remote = ""; //远程配置地址
     ClinkLibrary library = new ClinkLibrary();
 
     if(library.ClinkInit(remote, path)!=0){
