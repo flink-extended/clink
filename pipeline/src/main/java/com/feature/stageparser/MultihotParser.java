@@ -15,7 +15,7 @@ import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.ml.api.misc.param.Params;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.types.Row;
-import libfg.proto.Common;
+import clink.proto.Common;
 
 import java.util.Arrays;
 import java.util.Base64;

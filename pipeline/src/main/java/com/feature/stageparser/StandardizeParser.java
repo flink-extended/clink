@@ -13,7 +13,7 @@ import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.ml.api.misc.param.Params;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.types.Row;
-import libfg.proto.Common;
+import clink.proto.Common;
 
 import java.util.List;
 

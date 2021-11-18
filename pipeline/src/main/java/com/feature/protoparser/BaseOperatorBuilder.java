@@ -1,7 +1,7 @@
 package com.feature.protoparser;
 
-import libfg.proto.Common.RecordEntry;
-import libfg.proto.Operations.Transform;
+import clink.proto.Common.RecordEntry;
+import clink.proto.Operations.Transform;
 
 public class BaseOperatorBuilder {
 

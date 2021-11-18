@@ -11,7 +11,7 @@ import org.apache.flink.api.java.DataSet;
 import org.apache.flink.core.fs.FSDataInputStream;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.types.Row;
-import libfg.proto.Operations;
+import clink.proto.Operations;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

@@ -1,8 +1,8 @@
 package com.feature.protoparser;
 
-import libfg.proto.Common;
-import libfg.proto.Operations.Operation;
-import libfg.proto.Operations.Transform;
+import clink.proto.Common;
+import clink.proto.Operations.Operation;
+import clink.proto.Operations.Transform;
 
 public class OperationBuilder {
 

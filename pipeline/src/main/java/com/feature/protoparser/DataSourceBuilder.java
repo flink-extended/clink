@@ -1,6 +1,6 @@
 package com.feature.protoparser;
 
-import libfg.proto.Datasource;
+import clink.proto.Datasource;
 
 public class DataSourceBuilder {
 

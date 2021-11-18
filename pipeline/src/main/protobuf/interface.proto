@@ -1,7 +1,7 @@
 syntax = "proto3";
-package libfg.proto;
+package clink.proto;
 import "common.proto";
-option java_package = "libfg.proto";
+option java_package = "clink.proto";
 
 message SampleRecord {
   repeated FeatureRecord features = 1;
