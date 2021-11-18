@@ -27,7 +27,7 @@ import java.util.List;
 
 import static com.feature.FeatureEngineeringUtils.parseJsonToPipelineStage;
 
-class FeatureEngineeringTransferOpTest {
+class FeatureEngineeringTransformOpTest {
     private static final String[] COL_NAMES =
             new String[] {
                 "id", "click", "dt", "C1", "banner_pos",
@@ -44,11 +44,11 @@ class FeatureEngineeringTransferOpTest {
                 "string", "int", "int", "int", "int",
                 "int", "int", "int", "int"
             };
-    private static String libfgSoPath;
+    private static String ClinkSoPath;
 
     @Test
     public void transfer() throws Exception {
-        libfgSoPath =
+        ClinkSoPath =
                 new File("").getAbsolutePath()
                         + "/src/test/resources/feature/libperception_feature_plugin.dylib";
         String dataPath = getClass().getResource("/").getPath() + "/feature/data.csv";
@@ -113,7 +113,7 @@ class FeatureEngineeringTransferOpTest {
 
                 /** Compact operations config file */
                 List<Row> operConfList =
-                        model.save().link(new FeatureEngineeringTransferOp()).collect();
+                        model.save().link(new FeatureEngineeringTransformOp()).collect();
                 FileWriter operConfFilePath =
                         FileHandler.createTempFile(tmpConfDir, "operation.conf");
                 FileHandler.writeFileOnce(
@@ -145,13 +145,13 @@ class FeatureEngineeringTransferOpTest {
                 S3Handler.uploadFile(bucketName, s3Key, confTgzFile);
                 break;
             case "transform":
-                /** Use libfg to transform data * */
-                String libfgConfLocalPath = "/tmp/libfgConf";
-                String libfgConfRemotePath = endPoint + "/" + bucketName + "/" + s3Key;
+                /** Use Clink to transform data * */
+                String ClinkConfLocalPath = "/tmp/ClinkConf";
+                String ClinkConfRemotePath = endPoint + "/" + bucketName + "/" + s3Key;
                 Params params = new Params();
-                params.set("libfgSoPath", libfgSoPath);
-                params.set("libfgConfLocalPath", libfgConfLocalPath);
-                params.set("libfgConfRemotePath", libfgConfRemotePath);
+                params.set("ClinkSoPath", ClinkSoPath);
+                params.set("ClinkConfLocalPath", ClinkConfLocalPath);
+                params.set("ClinkConfRemotePath", ClinkConfRemotePath);
                 switch (outputDataType) {
                     case "batch":
                         TextSinkBatchOp outputSink =
@@ -160,7 +160,7 @@ class FeatureEngineeringTransferOpTest {
                                                 new FilePath(
                                                         outputPath,
                                                         new FlinkFileSystem(outputPath)));
-                        data.link(new LibfgTransferBatchOp(params)).link(outputSink);
+                        data.link(new ClinkTransformBatchOp(params)).link(outputSink);
                         BatchOperator.execute();
                     case "stream":
                         KafkaSinkStreamOp streamOutput =
@@ -169,7 +169,7 @@ class FeatureEngineeringTransferOpTest {
                                         .setDataFormat("CSV")
                                         .setBootstrapServers(outputKafkaBroker)
                                         .setTopic(outputKafkaTopic);
-                        streamInput.link(new LibfgTransferStreamOp(params)).link(streamOutput);
+                        streamInput.link(new ClinkTransformStreamOp(params)).link(streamOutput);
                         StreamOperator.execute();
                     default:
                         System.out.println("Unknown output data type: " + outputDataType);

@@ -18,19 +18,19 @@ import java.util.List;
 
 import static com.alibaba.alink.pipeline.ModelExporterUtils.loadStagesFromPipelineModel;
 
-public class FeatureEngineeringTransferOp extends BatchOperator<FeatureEngineeringTransferOp>
-        implements FeatureEngineeringTransferParams<FeatureEngineeringTransferOp> {
+public class FeatureEngineeringTransformOp extends BatchOperator<FeatureEngineeringTransformOp>
+        implements FeatureEngineeringTransformParams<FeatureEngineeringTransformOp> {
 
-    public FeatureEngineeringTransferOp() {
+    public FeatureEngineeringTransformOp() {
         this(new Params());
     }
 
-    public FeatureEngineeringTransferOp(Params params) {
+    public FeatureEngineeringTransformOp(Params params) {
         super(params);
     }
 
     @Override
-    public FeatureEngineeringTransferOp linkFrom(BatchOperator<?>... inputs) {
+    public FeatureEngineeringTransformOp linkFrom(BatchOperator<?>... inputs) {
         final String[] names = inputs[0].getColNames();
         final TypeInformation[] types = inputs[0].getColTypes();
 

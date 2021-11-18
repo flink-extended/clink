@@ -16,25 +16,25 @@ import org.apache.flink.types.Row;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class LibfgTransferStreamOp extends StreamOperator<LibfgTransferStreamOp>
-        implements LibfgTransferParams<LibfgTransferStreamOp>, Serializable {
+public class ClinkTransformStreamOp extends StreamOperator<ClinkTransformStreamOp>
+        implements ClinkTransformParams<ClinkTransformStreamOp>, Serializable {
 
-    private static String libfgSoPath;
-    private static LibfgWrapper LIBFG_INSTANCE;
+    private static String clinkSoPath;
+    private static ClinkWrapper CLINK_INSTANCE;
 
-    public LibfgTransferStreamOp(Params params) {
+    public ClinkTransformStreamOp(Params params) {
         super(params);
-        libfgSoPath =
+        clinkSoPath =
                 params.getStringOrDefault(
-                        "libfgSoPath", "/flink/usrlib/libperception_feature_plugin.so");
-        LIBFG_INSTANCE = Native.load(libfgSoPath, LibfgWrapper.class);
+                        "clinkSoPath", "/flink/usrlib/libperception_feature_plugin.so");
+        CLINK_INSTANCE = Native.load(clinkSoPath, ClinkWrapper.class);
     }
 
-    private static String FeatureExtract(String input, String localPath, String remotePath, String libfgSoPath) {
-        /** Flink workers doesn't initialize LIBFG_INSTANCE */
-        if (null == LIBFG_INSTANCE) {
-            System.out.printf("Init LIBFG_INSTANCE in worker");
-            LIBFG_INSTANCE = Native.load(libfgSoPath, LibfgWrapper.class);
+    private static String FeatureExtract(String input, String localPath, String remotePath, String clinkSoPath) {
+        /** Flink workers doesn't initialize CLINK_INSTANCE */
+        if (null == CLINK_INSTANCE) {
+            System.out.printf("Init CLINK_INSTANCE in worker");
+            CLINK_INSTANCE = Native.load(clinkSoPath, ClinkWrapper.class);
         }
         /** Alink kafka consumer will add extra fields */
         String[] inputArr = input.split(",");
@@ -47,23 +47,23 @@ public class LibfgTransferStreamOp extends StreamOperator<LibfgTransferStreamOp>
         Pointer pInput = new Memory((truncated_input.length() + 1) * Native.WCHAR_SIZE);
         pInput.setString(0, truncated_input);
         PointerByReference ptrRef = new PointerByReference(Pointer.NULL);
-        int res = LIBFG_INSTANCE.FeatureExtractOffline(pRemotePath, pPath, pInput, ptrRef);
+        int res = CLINK_INSTANCE.FeatureExtractOffline(pRemotePath, pPath, pInput, ptrRef);
         if (res != 0) {
             return null;
         }
         final Pointer p = ptrRef.getValue();
         // extract the null-terminated string from the Pointer
         final String val = p.getString(0);
-        LIBFG_INSTANCE.FeatureOfflineCleanUp(p);
+        CLINK_INSTANCE.FeatureOfflineCleanUp(p);
         return val;
     }
 
     @Override
-    public LibfgTransferStreamOp linkFrom(StreamOperator<?>... inputs) {
-        String libfgConfLocalPath = getParams().getString("libfgConfLocalPath");
-        String libfgConfRemotePath = getParams().getString("libfgConfRemotePath");
-        String libfgSoPath = getParams().getStringOrDefault(
-                "libfgSoPath", "/flink/usrlib/libperception_feature_plugin.so");
+    public ClinkTransformStreamOp linkFrom(StreamOperator<?>... inputs) {
+        String clinkConfLocalPath = getParams().getString("clinkConfLocalPath");
+        String clinkConfRemotePath = getParams().getString("clinkConfRemotePath");
+        String clinkSoPath = getParams().getStringOrDefault(
+                "clinkSoPath", "/flink/usrlib/libperception_feature_plugin.so");
         SingleOutputStreamOperator<Row> ret =
                 inputs[0]
                         .getDataStream()
@@ -72,9 +72,9 @@ public class LibfgTransferStreamOp extends StreamOperator<LibfgTransferStreamOp>
                                         Row.of(
                                                 FeatureExtract(
                                                         x.toString(),
-                                                        libfgConfLocalPath,
-                                                        libfgConfRemotePath,
-                                                        libfgSoPath)));
+                                                        clinkConfLocalPath,
+                                                        clinkConfRemotePath,
+                                                        clinkSoPath)));
         setOutput(ret, new TableSchema(new String[] {"out"}, new TypeInformation[] {Types.STRING}));
         return this;
     }

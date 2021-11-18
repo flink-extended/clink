@@ -12,7 +12,7 @@ import com.alibaba.alink.pipeline.PipelineModel;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.feature.FeatureEngineeringTransferOp;
+import com.feature.FeatureEngineeringTransformOp;
 import com.feature.FeatureEngineeringUtils;
 
 import static com.feature.FeatureEngineeringUtils.parseJsonToPipelineStage;
@@ -79,7 +79,7 @@ public class S3FeatureModelGenerator {
 
 		model
 			.save()
-			.link(new FeatureEngineeringTransferOp())
+			.link(new FeatureEngineeringTransformOp())
 			.link(
 				new CsvSinkBatchOp()
 					.setOverwriteSink(true)

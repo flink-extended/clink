@@ -31,11 +31,11 @@ if [[ -z "${s3Key}" ]];then
  exit 1
 fi
 
-libfgSoPath="$(cd $(dirname "../src/test/resources/feature"); pwd -P)/feature/libperception_feature_plugin.dylib"
+clinkSoPath="$(cd $(dirname "../src/test/resources/feature"); pwd -P)/feature/libperception_feature_plugin.dylib"
 
-echo "libfg library file path: ${libfgSoPath}"
+echo "Clink library file path: ${clinkSoPath}"
 
-localOpConfDir="libfg_conf"
+localOpConfDir="clink_conf"
 
 if [[ -d "${localOpConfDir}" ]];then
  rm -rf ${localOpConfDir}
@@ -48,13 +48,13 @@ if [[ -f "test_transform_result" ]];then
 fi
 
 flink run -c run.runFeatureEngineeringOffline \
-../target/clink-0.1-jar-with-dependencies.jar \
+../target/Clink-0.1-jar-with-dependencies.jar \
 --inputDataPath="../src/test/resources/feature/data.csv" \
 --isFirstLineHeader \
 --taskMode="transform" \
 --inputSchemaPath="../src/test/resources/feature/schema.csv" \
 --taskConfPath="../src/test/resources/feature/feature.json" \
---libfgSoPath="${libfgSoPath}" \
+--clinkSoPath="${clinkSoPath}" \
 --storeConfInS3 \
 --localOpConfDir="${localOpConfDir}" \
 --outputPath="test_transform_result" \
