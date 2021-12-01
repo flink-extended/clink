@@ -1,5 +1,8 @@
-![](https://github.com/Qihoo360/libfg/blob/master/docs/logo.png)
-# Clink编译
+<img src="./docs/clink-logo.png" height="80px">
+
+> Clink is a linker between Flink/Alink stream processing and C/C++ online serving focus on ML feature engineering.
+
+ # 编译
 ## Linux（Centos）
 ### Docker编译
 + 运行third_party/docker 下的build.sh,生成Docker镜像
