@@ -1,0 +1,3 @@
+[submodule "tfrt"]
+	path = tfrt
+	url = git@github.com:tensorflow/runtime.git
