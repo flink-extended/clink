@@ -1,0 +1,7 @@
+bazel-*
+.vscode
+.idea
+cache
+cscope*
+tags
+*.swp
