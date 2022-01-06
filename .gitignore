@@ -5,3 +5,9 @@ cache
 cscope*
 tags
 *.swp
+protos/*.cc
+protos/*.h
+*.jar
+*.iml
+.ijwb/
+java-lib/target

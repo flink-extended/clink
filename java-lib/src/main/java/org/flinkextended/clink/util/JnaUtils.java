@@ -1,4 +1,6 @@
 /*
+ * Copyright 2021 The Clink Authors
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,27 +14,21 @@
  * limitations under the License.
  */
 
-package org.clink.example;
+package org.flinkextended.clink.util;
 
-import com.sun.jna.Library;
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
-import java.util.Properties;
-
-/** Simple example of native library declaration and usage. */
-public class Main {
-
-    public interface ClinkKernels extends Library {
-        ClinkKernels INSTANCE = Native.load("clink_kernels_jna", ClinkKernels.class);
-
-        double SquareAdd(double x, double y);
-
-        double Square(double x);
-    }
-
-    public static void main(String[] args) {
-        System.out.println("Square result is " + ClinkKernels.INSTANCE.Square(3.0));
-        System.out.println("SquareAdd result is " + ClinkKernels.INSTANCE.SquareAdd(1.0, 3.0));
+/** Utility methods to be used when Java invokes C++ logic through JNA. */
+public class JnaUtils {
+    /**
+     * Allocates a certain chunk of memory containing values in a byte array, and returns a pointer
+     * to that memory chunk.
+     */
+    public static Pointer getByteArrayPointer(byte[] bytes) {
+        Pointer pointer = new Memory((long) bytes.length * Native.getNativeSize(Byte.TYPE));
+        pointer.write(0, bytes, 0, bytes.length);
+        return pointer;
     }
 }
