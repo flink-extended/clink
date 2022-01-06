@@ -18,7 +18,6 @@ processing with low latency (in sub-millisecond) in C++, apply the same logic
 to do offline feature processing in Java, and implement this logic only once
 (in C++).
 
-
 ## Getting Started
 
 ### Prerequisites
@@ -61,19 +60,21 @@ docker build -t centos:centos7.7.1908_clink -f docker/Dockerfile_centos_77 .
 git submodule update --init --recursive
 ```
 
+### Build & Test all Targets
+
+Users can run the following command to build all targets and to run all tests.
+
+```
+bazel test $(bazel query //...)
+```
+
 ### Execute Clink C++ functions in parallel in C++
 
 ```
 bazel run //:executor -- `pwd`/mlir_test/executor/basic.mlir --work_queue_type=mstd --host_allocator_type=malloc
 ```
 
-### Execute Clink C++ functions in Java
-
-```
-bazel run //:example
-```
-
-### Format C++ code using clang-format
+### Format codes using clang-format and diffplug-spotless
 
 Clink uses [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) to format C++ code.
 
@@ -81,4 +82,19 @@ Clink uses [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) to format
 find . \( -name "*.cc" -or -name "*.h" \) -not -path "./tfrt/*" -exec clang-format -i -style=llvm {} \;
 ```
 
+And it uses [diffplug/spotless](https://github.com/diffplug/spotless) to format java code.
 
+```
+mvn -f java-lib spotless:apply
+```
+
+### View & Edit Java Code with IDE
+
+Clink provides maven configuration that allows users to view or edit java code with IDEs like IntelliJ IDEA. Before IDEs can correctly compile java project, users need to run the following commands after setting up Clink repo and build Clink.
+
+```
+bazel build //:clink_java_proto
+cp bazel-bin/libclink_proto-speed.jar java-lib/lib/
+```
+
+Then users can open `java-lib` directory with their IDEs.
