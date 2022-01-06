@@ -41,19 +41,28 @@ libstdc++8.
 
 #### Build docker image based on Ubuntu 16.04
 
+Use the following command to build the docker image.
 ```
 docker build -t ubuntu:16.04_clink -f docker/Dockerfile_ubuntu_1604 .
 ```
 
+The pre-built docker image can be pulled from Docker Hub using the following command.
+```
+docker pull docker.io/flinkextended/clink:ubuntu16.04
+```
 #### Build docker image based on CentOS 7.7
 
-Note that the CentOS Dockerfile needs to compile Clang 11 from source code.
-This could take a few hours depending on the machine's CPU capacity.
-
+Use the following command to build the docker image. Note that the CentOS
+Dockerfile needs to compile Clang 11 from source code.  This could take a few
+hours depending on your machine.
 ```
 docker build -t centos:centos7.7.1908_clink -f docker/Dockerfile_centos_77 .
 ```
 
+The pre-built docker image can be pulled from Docker Hub using the following command.
+```
+docker pull docker.io/flinkextended/clink:centos7.7.1908
+```
 ### Setup Clink repo before building Clink
 
 ```
