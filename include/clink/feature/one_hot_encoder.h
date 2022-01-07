@@ -17,18 +17,17 @@
 #ifndef CLINK_FEATURE_ONE_HOT_ENCODER_H_
 #define CLINK_FEATURE_ONE_HOT_ENCODER_H_
 
+#include "clink/api/model.h"
 #include "clink/feature/proto/one_hot_encoder.pb.h"
 #include "clink/linalg/sparse_vector.h"
-#include "llvm/Support/Errc.h"
-#include "llvm/Support/Error.h"
 
 namespace clink {
 
 // A Model which encodes data into one-hot format.
-class OneHotEncoderModel {
+class OneHotEncoderModel : public Model {
 public:
   // Default constructor.
-  OneHotEncoderModel() {}
+  OneHotEncoderModel(tfrt::HostContext *host) : allocator_(host->allocator()) {}
 
   // Move operations are supported.
   OneHotEncoderModel(OneHotEncoderModel &&other) = default;
@@ -38,22 +37,30 @@ public:
   OneHotEncoderModel(const OneHotEncoderModel &other) = delete;
   OneHotEncoderModel &operator=(const OneHotEncoderModel &) = delete;
 
+  // TODO: Add a transform method with generic signature in the Model class
   // Converts the provided data to a SparseVector.
-  llvm::Expected<SparseVector> transform(const int value,
-                                         const int columnIndex);
+  tfrt::AsyncValueRef<SparseVector> transform(const int value,
+                                              const int column_index) const;
 
   // Loads a OneHotEncoderModel from given path. The path should be a directory
   // containing params and model data saved through
   // org.clink.feature.onehotencoder.ClinkOneHotEnoderModel::save(...).
-  static llvm::Expected<OneHotEncoderModel> load(const std::string path);
+  static llvm::Expected<tfrt::RCReference<OneHotEncoderModel>>
+  load(const std::string &path, tfrt::HostContext *host);
 
   void setDropLast(const bool is_droplast);
 
-  bool getDropLast();
+  bool getDropLast() const;
 
-  llvm::Error setModelData(const std::string modelDataProtobuf);
+  // TODO: load model data through file system instead of passing entire model
+  // data string.
+  llvm::Error setModelData(const std::string &model_data_str);
 
 private:
+  void Destroy() override {
+    Model::DestroyImpl<OneHotEncoderModel>(this, allocator_);
+  }
+
   // Params of OneHotEncoderModel.
   struct Params {
     // Whether to drop the last category.
@@ -65,6 +72,8 @@ private:
 
   // Model data of OneHotEncoderModel.
   OneHotEncoderModelDataProto model_data_;
+
+  tfrt::HostAllocator *allocator_;
 };
 
 } // namespace clink

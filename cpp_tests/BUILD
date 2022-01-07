@@ -27,14 +27,22 @@ tfrt_cc_library(
     visibility = [
         "//visibility:public",
     ],
+    deps = [
+        "@clink//:clink_kernels",
+        "@clink//:clink_kernels_alwayslink",
+        "@clink//:clink_kernels_opdefs",
+        "@clink//:clink_utils",
+        "@com_google_googletest//:gtest_main",
+        "@tf_runtime//:basic_kernels_alwayslink",
+        "@tf_runtime//:hostcontext_alwayslink",
+    ],
 )
 
 tfrt_cc_test(
     name = "linalg/sparse_vector_test",
     srcs = ["linalg/sparse_vector_test.cc"],
     deps = [
-        "@com_google_googletest//:gtest_main",
-        "@clink//:clink_kernels",
+        ":common",
     ],
 )
 
@@ -43,7 +51,5 @@ tfrt_cc_test(
     srcs = ["feature/one_hot_encoder_test.cc"],
     deps = [
         ":common",
-        "@com_google_googletest//:gtest_main",
-        "@clink//:clink_kernels",
     ],
 )

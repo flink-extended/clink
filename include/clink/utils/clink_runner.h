@@ -78,7 +78,7 @@ public:
   };
 
   // Runs the MLIR function on TFRT and returns the outputs.
-  llvm::SmallVector<RCReference<AsyncValue>>
+  llvm::SmallVector<RCReference<AsyncValue>, 4>
   Run(llvm::ArrayRef<RCReference<AsyncValue>> inputs);
 
 private:

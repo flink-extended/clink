@@ -17,18 +17,16 @@
 #ifndef CLINK_LINALG_SPARSE_VECTOR_H_
 #define CLINK_LINALG_SPARSE_VECTOR_H_
 
-#include "llvm/ADT/SmallVector.h"
-#include "llvm/Support/Errc.h"
-#include "llvm/Support/Error.h"
+#include "clink/linalg/vector.h"
 
 namespace clink {
 
 // A sparse vector of double values.
-class SparseVector {
+class SparseVector : public Vector {
 public:
   // Constructor for SparseVector.
   // `n` stands for the number of dimensions of the vector.
-  SparseVector(const int n) : n_(n) {}
+  explicit SparseVector(const int n) : n_(n) {}
 
   // Move operations are supported.
   SparseVector(SparseVector &&other) = default;
@@ -42,10 +40,12 @@ public:
   llvm::Error set(const int index, const double value);
 
   // Gets the value at a certain index of the vector.
-  llvm::Expected<double> get(const int index);
+  llvm::Expected<double> get(const int index) const;
 
   // Gets the total number of dimensions of the vector.
-  int size();
+  int size() const;
+
+  bool operator==(const SparseVector &other) const;
 
 private:
   const int n_;

@@ -19,8 +19,7 @@
 #ifndef CLINK_KERNELS_OPDEFS_CLINK_KERNELS_H_
 #define CLINK_KERNELS_OPDEFS_CLINK_KERNELS_H_
 
-#include "mlir/IR/Dialect.h"
-#include "mlir/IR/OpDefinition.h"
+#include "mlir/IR/DialectImplementation.h"
 #include "mlir/Interfaces/InferTypeOpInterface.h"
 
 using namespace mlir;
@@ -32,6 +31,10 @@ class ClinkDialect : public Dialect {
 public:
   static StringRef getDialectNamespace() { return "clink"; }
   explicit ClinkDialect(MLIRContext *context);
+
+  mlir::Type parseType(mlir::DialectAsmParser &parser) const override;
+  void printType(mlir::Type type,
+                 mlir::DialectAsmPrinter &printer) const override;
 };
 
 } // namespace clink
