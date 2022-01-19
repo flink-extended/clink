@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
   auto runner = builder.Compile();
 
   // Executes ClinkRunner.
-  llvm::SmallVector<RCReference<AsyncValue>> inputs;
+  llvm::SmallVector<RCReference<AsyncValue>, 4> inputs;
   inputs.push_back(tfrt::MakeAvailableAsyncValueRef<double>(2.0));
   auto results = runner.Run(inputs);
 

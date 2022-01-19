@@ -15,13 +15,11 @@
  */
 
 #include "clink/linalg/sparse_vector.h"
-#include "tfrt/support/error_util.h"
 
-using namespace clink;
-using namespace std;
+namespace clink {
 
-llvm::Expected<double> SparseVector::get(const int index) {
-  if (index >= n_) {
+llvm::Expected<double> SparseVector::get(const int index) const {
+  if (index >= n_ || index < 0) {
     return tfrt::MakeStringError("Index out of range.");
   }
 
@@ -50,4 +48,18 @@ llvm::Error SparseVector::set(const int index, const double value) {
   return llvm::Error::success();
 }
 
-int SparseVector::size() { return n_; }
+int SparseVector::size() const { return n_; }
+
+bool SparseVector::operator==(const SparseVector &other) const {
+  if (n_ != other.n_) {
+    return false;
+  }
+  for (int i = 0; i < n_; i++) {
+    if (this->get(i).get() != other.get(i).get()) {
+      return false;
+    }
+  }
+  return true;
+}
+
+} // namespace clink

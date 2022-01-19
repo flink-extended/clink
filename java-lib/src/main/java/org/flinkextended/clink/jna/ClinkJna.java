@@ -34,6 +34,7 @@ public interface ClinkJna extends Library {
      *
      * @param vector A reference to the {@link SparseVectorJna} object.
      */
+    // TODO: Automatically free C++ objects to avoid memory leak and improve usability.
     void SparseVector_delete(SparseVectorJna.ByReference vector);
 
     /**
@@ -59,6 +60,7 @@ public interface ClinkJna extends Library {
      * @param columnIndex The column index which the indexed integer locates
      * @return A one-hot-encoded sparse vector
      */
+    // TODO: Compare the performance of using ByReference v.s. ByValue and optimize accordingly.
     SparseVectorJna.ByReference OneHotEncoderModel_transform(
             Pointer modelPointer, int value, int columnIndex) throws LastErrorException;
 

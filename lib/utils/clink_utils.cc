@@ -14,7 +14,9 @@
 
 #include "clink/utils/clink_utils.h"
 
+#include <dirent.h>
 #include <string>
+#include <sys/stat.h>
 
 #include "tfrt/host_context/concurrent_work_queue.h"
 #include "tfrt/host_context/host_context.h"
@@ -59,6 +61,31 @@ CreateHostContext(string_view work_queue_type,
                                                 std::move(work_queue));
   RegisterStaticKernels(host_ctx->GetMutableRegistry());
   return host_ctx;
+}
+
+std::string getOnlyFileInDirectory(std::string path) {
+  std::string result = "";
+  struct dirent *entry;
+  struct stat st;
+  DIR *dir = opendir(path.c_str());
+
+  if (dir == NULL) {
+    return "";
+  }
+  while ((entry = readdir(dir)) != NULL) {
+    const std::string full_file_name = path + "/" + entry->d_name;
+    if (stat(full_file_name.c_str(), &st) == -1)
+      continue;
+    bool is_directory = (st.st_mode & S_IFDIR) != 0;
+    if (!is_directory) {
+      if (result != "") {
+        return "";
+      }
+      result = std::string(entry->d_name);
+    }
+  }
+  closedir(dir);
+  return result;
 }
 
 } // namespace clink

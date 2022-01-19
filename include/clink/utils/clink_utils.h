@@ -25,6 +25,17 @@ std::unique_ptr<tfrt::HostContext>
 CreateHostContext(string_view work_queue_type,
                   tfrt::HostAllocatorType host_allocator_type);
 
+// Given a directory path, gets the only file in the directory.
+//
+// In Flink ML operators that produces model data as a protobuf record, they
+// save model data in a directory with only one file. C++ knows the directory of
+// the file, but the file's name is unknown to C++. This function helps to
+// locate that file.
+//
+// This function returns empty string if the directory does not exist, or there
+// is zero or more than one file in the directory.
+std::string getOnlyFileInDirectory(std::string path);
+
 } // namespace clink
 
 #endif // CLINK_UTILS_CLINK_UTILS_H_

@@ -16,7 +16,9 @@
 
 #include "clink/kernels/opdefs/clink_kernels.h"
 
+#include "clink/kernels/opdefs/types.h"
 #include "mlir/IR/BuiltinOps.h"
+#include "tfrt/basic_kernels/opdefs/types.h"
 
 namespace clink {
 
@@ -29,10 +31,42 @@ ClinkDialect::ClinkDialect(MLIRContext *context)
   allowUnknownTypes();
   allowUnknownOperations();
 
+  addTypes<ModelType, VectorType>();
+
   addOperations<
 #define GET_OP_LIST
 #include "clink/kernels/opdefs/clink_kernels.cpp.inc"
       >();
+}
+
+mlir::Type ClinkDialect::parseType(mlir::DialectAsmParser &parser) const {
+  llvm::StringRef spec = parser.getFullSymbolSpec();
+  if (spec == "model")
+    return ModelType::get(getContext());
+  if (spec == "vector")
+    return VectorType::get(getContext());
+
+  if (auto type = mlir::Dialect::parseType(parser))
+    return type;
+
+  mlir::Location loc = parser.getEncodedSourceLoc(parser.getNameLoc());
+  mlir::emitError(loc) << "unknown data type " << spec;
+  return {};
+}
+
+void ClinkDialect::printType(mlir::Type type,
+                             mlir::DialectAsmPrinter &printer) const {
+  if (type.isa<ModelType>()) {
+    printer << "model";
+    return;
+  }
+
+  if (type.isa<VectorType>()) {
+    printer << "vector";
+    return;
+  }
+
+  llvm_unreachable("unknown data type");
 }
 
 } // namespace clink
