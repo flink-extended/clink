@@ -52,7 +52,7 @@ ClinkRunner::ClinkRunner(const std::string &fn_name, BefBuffer bef_buffer,
   func_ = bef_file_->GetFunction(fn_name_);
 }
 
-llvm::SmallVector<RCReference<AsyncValue>>
+llvm::SmallVector<RCReference<AsyncValue>, 4>
 ClinkRunner::Run(ArrayRef<RCReference<AsyncValue>> inputs) {
   assert((func_->num_arguments() == inputs.size()) &&
          "Incorrect number of arguments set.");

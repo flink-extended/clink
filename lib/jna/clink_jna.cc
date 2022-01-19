@@ -18,6 +18,7 @@
 #include "clink/kernels/clink_kernels.h"
 #include "clink/utils/clink_utils.h"
 #include "nlohmann/json.hpp"
+#include "tfrt/host_context/chain.h"
 #include "tfrt/support/logging.h"
 #include "llvm/Support/Errc.h"
 #include "llvm/Support/Error.h"
@@ -26,25 +27,49 @@
 extern "C" {
 #endif
 
-// Clink JNA programs handle exception in Java. C++ part of the programs only
-// prints out the information.
+// Handles llvm::Error generated in Clink JNA methods. This function prints
+// corresponding error message to std::err and set errno to 1, which causes Java
+// codes to throw LastErrorException.
 #define CLINK_JNA_HANDLE_ERROR(ERR)                                            \
   do {                                                                         \
     if (auto err = ERR) {                                                      \
       llvm::Error unknown = llvm::handleErrors(                                \
           std::move(err), [&](const llvm::StringError &err) {                  \
-            TFRT_LOG(INFO) << err.getMessage() << "\n";                        \
+            TFRT_LOG(ERROR) << err.getMessage() << "\n";                       \
           });                                                                  \
       assert(!unknown && "Unknown error type");                                \
       errno = -1;                                                              \
     }                                                                          \
   } while (0);
 
+// Handles tfrt::RCReference<tfrt::ErrorAsyncValue> generated in Clink JNA
+// methods. This function prints corresponding error message to std::err and set
+// errno to 1, which causes Java codes to throw LastErrorException.
+#define CLINK_JNA_HANDLE_ASYNC_ERROR(ERR)                                      \
+  getJnaHostContext()->Await(ERR.CopyRCRef());                                 \
+  if (ERR.IsError()) {                                                         \
+    TFRT_LOG(ERROR) << tfrt::StrCat(ERR.GetError()) << "\n";                   \
+    errno = -1;                                                                \
+  }
+
+namespace {
+tfrt::HostContext *getJnaHostContext() {
+  static tfrt::HostContext *jna_host_context =
+      clink::CreateHostContext("mstd", tfrt::HostAllocatorType::kMalloc)
+          .release();
+  return jna_host_context;
+}
+
+ExecutionContext &getJnaExecutionContext() {
+  static ExecutionContext exec_ctx(
+      *tfrt::RequestContextBuilder(getJnaHostContext(), nullptr).build());
+  return exec_ctx;
+}
+
+} // namespace
+
 double SquareAdd(double x, double y) {
-  std::unique_ptr<HostContext> host_context =
-      clink::CreateHostContext("s", tfrt::HostAllocatorType::kLeakCheckMalloc);
-  ExecutionContext exec_ctx(
-      *tfrt::RequestContextBuilder(host_context.get(), nullptr).build());
+  ExecutionContext &exec_ctx = getJnaExecutionContext();
 
   AsyncValueRef<double> x_async = MakeAvailableAsyncValueRef<double>(x);
   Argument<double> x_arg(x_async.GetAsyncValue());
@@ -106,9 +131,13 @@ void SparseVector_delete(SparseVectorJNA *vector) { delete vector; }
 
 SparseVectorJNA *OneHotEncoderModel_transform(clink::OneHotEncoderModel *model,
                                               const int value,
-                                              const int columnIndex) {
-  auto sparse_vector = model->transform(value, columnIndex);
-  CLINK_JNA_HANDLE_ERROR(sparse_vector.takeError())
+                                              const int column_index) {
+  auto sparse_vector = model->transform(value, column_index);
+  CLINK_JNA_HANDLE_ASYNC_ERROR(sparse_vector)
+  // TODO: simplify the if logic here.
+  if (sparse_vector.IsError()) {
+    return NULL;
+  }
   return new SparseVectorJNA(sparse_vector.get());
 }
 
@@ -116,11 +145,12 @@ clink::OneHotEncoderModel *
 OneHotEncoderModel_loadFromMemory(const char *params_str,
                                   const char *model_data_str,
                                   const int model_data_str_len) {
-  clink::OneHotEncoderModel *model = new clink::OneHotEncoderModel();
+  clink::OneHotEncoderModel *model =
+      new clink::OneHotEncoderModel(getJnaHostContext());
 
   nlohmann::json params = nlohmann::json::parse(params_str);
   std::string is_droplast = params["dropLast"].get<std::string>();
-  model->setDropLast(is_droplast.compare("false"));
+  model->setDropLast(is_droplast != "false");
   CLINK_JNA_HANDLE_ERROR(
       model->setModelData(std::string(model_data_str, model_data_str_len)))
 

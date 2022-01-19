@@ -15,18 +15,21 @@
  */
 
 #include "clink/linalg/sparse_vector.h"
+
+#include "clink/cpp_tests/test_util.h"
 #include "gtest/gtest.h"
 
-namespace tfrt {
+namespace clink {
+
 namespace {
 
 TEST(SparseVectorTest, CreatesVector) {
-  clink::SparseVector vector(5);
+  SparseVector vector(5);
   EXPECT_EQ(vector.size(), 5);
 }
 
 TEST(SparseVectorTest, SetGetValue) {
-  clink::SparseVector vector(5);
+  SparseVector vector(5);
   vector.set(1, 1.0);
   vector.set(2, 3.0);
   vector.set(4, 2.5);
@@ -35,9 +38,9 @@ TEST(SparseVectorTest, SetGetValue) {
   EXPECT_EQ(vector.get(2).get(), 3.0);
   EXPECT_EQ(vector.get(3).get(), 0.0);
   EXPECT_EQ(vector.get(4).get(), 2.5);
-  EXPECT_EQ(!vector.get(4).takeError(), true);
-  EXPECT_EQ(!vector.get(5).takeError(), false);
+  EXPECT_FALSE((bool)vector.get(4).takeError());
+  EXPECT_TRUE((bool)vector.get(5).takeError());
 }
 
 } // namespace
-} // namespace tfrt
+} // namespace clink

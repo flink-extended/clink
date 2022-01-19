@@ -14,79 +14,151 @@
  * limitations under the License.
  */
 
-#include "fstream"
-#include <cstdlib>
-#include <string>
-#include <sys/stat.h>
-
 #include "clink/cpp_tests/test_util.h"
 #include "clink/feature/one_hot_encoder.h"
-#include "nlohmann/json.hpp"
 #include "gtest/gtest.h"
 
-namespace tfrt {
+namespace clink {
+
 namespace {
 
-TEST(OneHotEncoderTest, Param) {
-  clink::OneHotEncoderModel model;
-  model.setDropLast(false);
-  EXPECT_EQ(model.getDropLast(), false);
-  model.setDropLast(true);
-  EXPECT_EQ(model.getDropLast(), true);
+class OneHotEncoderTest : public testing::Test {
+protected:
+  static void SetUpTestSuite() {
+    assert(host_context == nullptr);
+    host_context =
+        CreateHostContext("mstd", tfrt::HostAllocatorType::kLeakCheckMalloc)
+            .release();
+    assert(mlir_context == nullptr);
+    mlir_context = new MLIRContext();
+    mlir_context->allowUnregisteredDialects();
+    mlir_context->printOpOnDiagnostic(true);
+    mlir::DialectRegistry registry;
+    registry.insert<clink::ClinkDialect>();
+    registry.insert<tfrt::compiler::TFRTDialect>();
+    mlir_context->appendDialectRegistry(registry);
+  }
+
+  static void TearDownTestSuite() {
+    delete host_context;
+    host_context = nullptr;
+    delete mlir_context;
+    mlir_context = nullptr;
+  }
+
+  static tfrt::HostContext *host_context;
+  static MLIRContext *mlir_context;
+};
+
+tfrt::HostContext *OneHotEncoderTest::host_context = nullptr;
+
+MLIRContext *OneHotEncoderTest::mlir_context = nullptr;
+
+TEST_F(OneHotEncoderTest, Param) {
+  RCReference<OneHotEncoderModel> model =
+      tfrt::TakeRef(host_context->Construct<OneHotEncoderModel>(host_context));
+  model->setDropLast(false);
+  EXPECT_FALSE(model->getDropLast());
+  model->setDropLast(true);
+  EXPECT_TRUE(model->getDropLast());
 }
 
-TEST(OneHotEncoderTest, Transform) {
-  clink::OneHotEncoderModelDataProto model_data;
+TEST_F(OneHotEncoderTest, Transform) {
+  OneHotEncoderModelDataProto model_data;
   model_data.add_featuresizes(2);
   model_data.add_featuresizes(3);
   std::string model_data_str;
   model_data.SerializeToString(&model_data_str);
 
-  clink::OneHotEncoderModel model;
-  model.setDropLast(false);
-  llvm::Error err = model.setModelData(model_data_str);
-  EXPECT_EQ(!err, true);
+  RCReference<OneHotEncoderModel> model =
+      tfrt::TakeRef(host_context->Construct<OneHotEncoderModel>(host_context));
+  model->setDropLast(false);
+  llvm::Error err = model->setModelData(std::move(model_data_str));
+  EXPECT_FALSE(err);
 
-  auto vector = model.transform(1, 0);
-  EXPECT_EQ(!vector.takeError(), true);
-  EXPECT_EQ(vector->get(1).get(), 1.0);
+  SparseVector expected_vector(2);
+  expected_vector.set(1, 1.0);
+  auto actual_vector = model->transform(1, 0);
+  EXPECT_EQ(actual_vector.get(), expected_vector);
 
-  auto invalid_value_vector = model.transform(1, 5);
-  EXPECT_EQ(!invalid_value_vector.takeError(), false);
+  auto invalid_value_vector = model->transform(1, 5);
+  EXPECT_TRUE(invalid_value_vector.IsError());
 
-  auto invalid_index_vector = model.transform(5, 0);
-  EXPECT_EQ(!invalid_index_vector.takeError(), false);
+  auto invalid_index_vector = model->transform(5, 0);
+  EXPECT_TRUE(invalid_index_vector.IsError());
 }
 
-TEST(OneHotEncoderTest, Load) {
-  std::string dir_name = clink::test::createTemporaryFolder();
+TEST_F(OneHotEncoderTest, Load) {
+  test::TemporaryFolder tmp_folder;
 
   nlohmann::json params;
   params["paramMap"]["dropLast"] = "false";
 
-  std::ofstream params_output(dir_name + "/metadata");
-  params_output << params;
-  params_output.close();
-
-  clink::OneHotEncoderModelDataProto model_data;
+  OneHotEncoderModelDataProto model_data;
   model_data.add_featuresizes(2);
   model_data.add_featuresizes(3);
 
-  mkdir((dir_name + "/data").c_str(), S_IRWXU);
-  std::ofstream model_data_output(dir_name + "/data/" +
-                                  clink::test::generateRandomString());
-  model_data.SerializeToOstream(&model_data_output);
-  model_data_output.close();
+  test::saveMetaDataModelData(tmp_folder.getAbsolutePath(), params, model_data);
 
-  auto model = clink::OneHotEncoderModel::load(dir_name);
-  EXPECT_EQ(!model.takeError(), true);
+  auto model =
+      OneHotEncoderModel::load(tmp_folder.getAbsolutePath(), host_context);
+  EXPECT_FALSE((bool)model.takeError());
 
-  auto vector = model->transform(1, 0);
-  EXPECT_EQ(!vector.takeError(), true);
-  EXPECT_EQ(vector->get(1).get(), 1.0);
+  SparseVector expected_vector(2);
+  expected_vector.set(1, 1.0);
+  auto actual_vector = model.get()->transform(1, 0);
+  EXPECT_EQ(actual_vector.get(), expected_vector);
+}
 
-  clink::test::deleteFolderRecursively(dir_name);
+TEST_F(OneHotEncoderTest, Mlir) {
+  test::TemporaryFolder tmp_folder;
+
+  nlohmann::json params;
+  params["paramMap"]["dropLast"] = "false";
+
+  OneHotEncoderModelDataProto model_data;
+  model_data.add_featuresizes(2);
+  model_data.add_featuresizes(3);
+
+  test::saveMetaDataModelData(tmp_folder.getAbsolutePath(), params, model_data);
+
+  // TODO: Separate the load process that is triggered only once and the
+  // repeatedly triggered transform process into different scripts.
+  auto mlir_script = R"mlir(
+    func @main(%path: !tfrt.string, %value: i32, %column_index: i32) -> !clink.vector {
+      %model = clink.onehotencoder_load %path
+      %vector = clink.onehotencoder_transform %model, %value, %column_index
+      tfrt.return %vector : !clink.vector
+    }
+  )mlir";
+
+  llvm::SmallVector<RCReference<AsyncValue>, 4> inputs;
+  inputs.push_back(tfrt::MakeAvailableAsyncValueRef<std::string>(
+      tmp_folder.getAbsolutePath()));
+  inputs.push_back(tfrt::MakeAvailableAsyncValueRef<int32_t>(1));
+  inputs.push_back(tfrt::MakeAvailableAsyncValueRef<int32_t>(0));
+
+  auto results =
+      test::runMlirScript(host_context, mlir_context, mlir_script, inputs);
+  EXPECT_EQ(results.size(), 1);
+  host_context->Await(results);
+  SparseVector &actual_vector = results[0]->get<SparseVector>();
+  SparseVector expected_vector(2);
+  expected_vector.set(1, 1.0);
+  EXPECT_EQ(actual_vector, expected_vector);
+
+  llvm::SmallVector<RCReference<AsyncValue>, 4> invalid_inputs;
+  invalid_inputs.push_back(tfrt::MakeAvailableAsyncValueRef<std::string>(
+      tmp_folder.getAbsolutePath()));
+  invalid_inputs.push_back(tfrt::MakeAvailableAsyncValueRef<int32_t>(5));
+  invalid_inputs.push_back(tfrt::MakeAvailableAsyncValueRef<int32_t>(5));
+
+  auto invalid_results = test::runMlirScript(host_context, mlir_context,
+                                             mlir_script, invalid_inputs);
+  EXPECT_EQ(invalid_results.size(), 1);
+  host_context->Await(invalid_results);
+  EXPECT_TRUE(invalid_results[0]->IsError());
 }
 
 } // namespace
-} // namespace tfrt
+} // namespace clink

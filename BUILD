@@ -16,6 +16,7 @@ load("@llvm-project//mlir:tblgen.bzl", "gentbl_cc_library", "td_library")
 load("@rules_cc//cc:defs.bzl", "cc_proto_library")
 load("@rules_java//java:defs.bzl", "java_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 
 package(
     default_visibility = ["//:__subpackages__"],
@@ -30,6 +31,11 @@ package_group(
     ],
 )
 
+buildifier(
+    name = "buildifier",
+    exclude_patterns = ["./tfrt/*"],
+)
+
 tfrt_cc_binary(
     name = "executor",
     srcs = [
@@ -39,8 +45,8 @@ tfrt_cc_binary(
         ":clink_kernels_alwayslink",
         ":clink_kernels_opdefs",
         ":clink_utils",
-        "@tf_runtime//:hostcontext_alwayslink",
         "@tf_runtime//:basic_kernels_alwayslink",
+        "@tf_runtime//:hostcontext_alwayslink",
     ],
 )
 
@@ -65,21 +71,24 @@ tfrt_cc_library(
 tfrt_cc_library(
     name = "clink_kernels",
     srcs = [
-        "lib/linalg/sparse_vector.cc",
         "lib/feature/one_hot_encoder.cc",
         "lib/kernels/clink_kernels.cc",
+        "lib/linalg/sparse_vector.cc",
     ],
     hdrs = [
-        "include/clink/linalg/sparse_vector.h",
+        "include/clink/api/model.h",
         "include/clink/feature/one_hot_encoder.h",
         "include/clink/kernels/clink_kernels.h",
+        "include/clink/linalg/sparse_vector.h",
+        "include/clink/linalg/vector.h",
     ],
     alwayslink_static_registration_src = "lib/kernels/static_registration.cc",
     visibility = [":friends"],
     deps = [
-        "@tf_runtime//:hostcontext",
         ":clink_cc_proto",
+        ":clink_utils",
         "@com_github_nlohmann_json//:json",
+        "@tf_runtime//:hostcontext",
     ],
 )
 
@@ -99,8 +108,7 @@ gentbl_cc_library(
     tblgen = "@llvm-project//mlir:mlir-tblgen",
     td_file = "include/clink/kernels/opdefs/clink_kernels.td",
     deps = [
-        "@llvm-project//mlir:InferTypeOpInterfaceTdFiles",
-        "@llvm-project//mlir:SideEffectTdFiles",
+        "@tf_runtime//:OpBaseTdFiles",
     ],
 )
 
@@ -111,14 +119,12 @@ tfrt_cc_library(
     ],
     hdrs = [
         "include/clink/kernels/opdefs/clink_kernels.h",
+        "include/clink/kernels/opdefs/types.h",
     ],
     visibility = [":friends"],
     deps = [
         ":clink_kernels_opdefs_inc_gen",
-        "@llvm-project//mlir:IR",
-        "@llvm-project//mlir:SideEffects",
-        "@llvm-project//mlir:Support",
-        "@llvm-project//mlir:InferTypeOpInterface",
+        "@tf_runtime//:basic_kernels_opdefs",
     ],
 )
 
@@ -131,33 +137,33 @@ tfrt_cc_binary(
     visibility = [":friends"],
     deps = [
         ":clink_kernels",
-        ":clink_utils",
         "@tf_runtime//:hostcontext_alwayslink",
     ],
 )
 
 FLINK_VERSION = "1_14_0"
+
 SCALA_VERSION = "2_12"
 
 java_library(
     name = "clink_kernels_java_deps",
     exports = [
+        "@maven//:commons_collections_commons_collections_3_2_2",
         "@maven//:net_java_dev_jna_jna",
-        "@maven//:org_apache_flink_flink_core",
+        "@maven//:org_apache_commons_commons_compress",
+        "@maven//:org_apache_commons_commons_lang3_3_3_2",
+        "@maven//:org_apache_flink_flink_clients_%s" % SCALA_VERSION,
         "@maven//:org_apache_flink_flink_connector_files",
+        "@maven//:org_apache_flink_flink_core",
         "@maven//:org_apache_flink_flink_streaming_java_%s" % SCALA_VERSION,
         "@maven//:org_apache_flink_flink_shaded_jackson",
         "@maven//:org_apache_flink_flink_table_api_java",
         "@maven//:org_apache_flink_flink_table_api_java_bridge_%s" % SCALA_VERSION,
-        "@maven//:org_apache_flink_flink_clients_%s" % SCALA_VERSION,
         "@maven//:org_apache_flink_flink_table_planner_%s" % SCALA_VERSION,
         "@maven//:org_apache_flink_flink_table_runtime_%s" % SCALA_VERSION,
         "@maven//:org_apache_flink_flink_ml_core",
         "@maven//:org_apache_flink_flink_ml_iteration",
         "@maven//:org_apache_flink_flink_ml_lib_%s" % SCALA_VERSION,
-        "@maven//:commons_collections_commons_collections_3_2_2",
-        "@maven//:org_apache_commons_commons_lang3_3_3_2",
-        "@maven//:org_apache_commons_commons_compress",
     ],
 )
 
@@ -169,46 +175,45 @@ java_library(
     ],
 )
 
-
 java_library(
     name = "clink_kernels_java",
     srcs = glob(["java-lib/src/main/**/*.java"]),
     visibility = [":friends"],
     deps = [
-        ":clink_kernels_java_deps",
-        ":clink_jna",
         ":clink_java_proto",
+        ":clink_jna",
+        ":clink_kernels_java_deps",
     ],
 )
 
 java_test(
     name = "clink_kernels_java_test",
     srcs = glob(["java-lib/src/test/**/*.java"]),
-    visibility = [":friends"],
-    deps = [
-        ":clink_kernels_java_deps",
-        ":clink_kernels_java_test_deps",
-        ":clink_kernels_java",
-        ":clink_jna",
-        ":clink_java_proto",
-    ],
     jvm_flags = [
         "-Djna.library.path=.",
     ],
     test_class = "org.flinkextended.clink.util.AllTestsRunner",
+    visibility = [":friends"],
+    deps = [
+        ":clink_java_proto",
+        ":clink_jna",
+        ":clink_kernels_java",
+        ":clink_kernels_java_deps",
+        ":clink_kernels_java_test_deps",
+    ],
 )
 
-java_proto_library( 
-    name = "clink_java_proto", 
-    deps = [":clink_proto"], 
+proto_library(
+    name = "clink_proto",
+    srcs = ["include/clink/feature/proto/one_hot_encoder.proto"],
 )
 
-cc_proto_library( 
-    name = "clink_cc_proto", 
-    deps = [":clink_proto"], 
+cc_proto_library(
+    name = "clink_cc_proto",
+    deps = [":clink_proto"],
 )
 
-proto_library( 
-    name = "clink_proto", 
-    srcs = ["include/clink/feature/proto/one_hot_encoder.proto"], 
+java_proto_library(
+    name = "clink_java_proto",
+    deps = [":clink_proto"],
 )
