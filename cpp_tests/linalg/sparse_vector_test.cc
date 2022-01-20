@@ -39,7 +39,7 @@ TEST(SparseVectorTest, SetGetValue) {
   EXPECT_EQ(vector.get(3).get(), 0.0);
   EXPECT_EQ(vector.get(4).get(), 2.5);
   EXPECT_FALSE((bool)vector.get(4).takeError());
-  EXPECT_TRUE((bool)vector.get(5).takeError());
+  EXPECT_EQ(tfrt::StrCat(vector.get(5).takeError()), "Index out of range.");
 }
 
 }  // namespace

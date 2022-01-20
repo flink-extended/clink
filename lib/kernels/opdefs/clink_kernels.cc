@@ -66,6 +66,39 @@ void ClinkDialect::printType(mlir::Type type,
   llvm_unreachable("unknown data type");
 }
 
+namespace {
+
+static Type GetModelType(Builder *builder) {
+  return builder->getType<ModelType>();
+}
+
+}  // namespace
+
+//===----------------------------------------------------------------------===//
+// TransformOp
+//===----------------------------------------------------------------------===//
+
+static ParseResult parseTransformOp(OpAsmParser &parser,
+                                    OperationState &result) {
+  SmallVector<OpAsmParser::OperandType, 4> operands;
+  SmallVector<Type, 4> operand_types;
+  FunctionType calleeType;
+  auto calleeLoc = parser.getNameLoc();
+  if (parser.parseOperandList(operands) || parser.parseColonType(calleeType) ||
+      parser.addTypesToList(calleeType.getResults(), result.types)) {
+    return failure();
+  }
+  operand_types.push_back(GetModelType(&parser.getBuilder()));
+  operand_types.insert(operand_types.end(), calleeType.getInputs().begin(),
+                       calleeType.getInputs().end());
+  if (parser.resolveOperands(operands, operand_types, calleeLoc,
+                             result.operands)) {
+    return failure();
+  }
+
+  return success();
+}
+
 }  // namespace clink
 
 //===----------------------------------------------------------------------===//

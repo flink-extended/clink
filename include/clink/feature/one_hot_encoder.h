@@ -37,10 +37,9 @@ class OneHotEncoderModel : public Model {
   OneHotEncoderModel(const OneHotEncoderModel &other) = delete;
   OneHotEncoderModel &operator=(const OneHotEncoderModel &) = delete;
 
-  // TODO: Add a transform method with generic signature in the Model class
-  // Converts the provided data to a SparseVector.
-  tfrt::AsyncValueRef<SparseVector> transform(const int value,
-                                              const int column_index) const;
+  llvm::SmallVector<tfrt::RCReference<tfrt::AsyncValue>, 4> transform(
+      llvm::ArrayRef<tfrt::AsyncValue *> inputs,
+      const tfrt::ExecutionContext &exec_ctx) override;
 
   // Loads a OneHotEncoderModel from given path. The path should be a directory
   // containing params and model data saved through

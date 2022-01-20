@@ -17,6 +17,8 @@
 #ifndef CLINK_API_MODEL_H_
 #define CLINK_API_MODEL_H_
 
+#include "tfrt/host_context/async_dispatch.h"
+#include "tfrt/host_context/async_value.h"
 #include "tfrt/host_context/host_allocator.h"
 #include "tfrt/support/ref_count.h"
 
@@ -24,12 +26,25 @@ namespace clink {
 
 // Basic interface for Clink operators that provides feature processing
 // function.
+//
+// NOTE: every Model subclass should implement a static method with signature
+// `static llvm::Expected<tfrt::RCReference<T>> load(const std::string &path,
+// tfrt::HostContext *host)`, where `T` refers to the concrete subclass. This
+// static method should instantiate a new Model instance based on the data read
+// from the given path.
 class Model : public tfrt::ReferenceCounted<Model> {
  public:
   virtual ~Model() {}
 
+  // Applies the Model on the given ArrayRef of input AsyncValues and returns
+  // a SmallVector of AsyncValues.
+  virtual llvm::SmallVector<tfrt::RCReference<tfrt::AsyncValue>, 4> transform(
+      llvm::ArrayRef<tfrt::AsyncValue *> inputs,
+      const tfrt::ExecutionContext &exec_ctx) = 0;
+
+ protected:
   template <typename SubClass>
-  void DestroyImpl(SubClass *ptr, tfrt::HostAllocator *allocator) {
+  static void DestroyImpl(SubClass *ptr, tfrt::HostAllocator *allocator) {
     ptr->~SubClass();
     allocator->DeallocateBytes(ptr, sizeof(SubClass));
   }

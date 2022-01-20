@@ -30,27 +30,26 @@ extern "C" {
 // Handles llvm::Error generated in Clink JNA methods. This function prints
 // corresponding error message to std::err and set errno to 1, which causes Java
 // codes to throw LastErrorException.
-#define CLINK_JNA_HANDLE_ERROR(ERR)                           \
-  do {                                                        \
-    if (auto err = ERR) {                                     \
-      llvm::Error unknown = llvm::handleErrors(               \
-          std::move(err), [&](const llvm::StringError &err) { \
-            TFRT_LOG(ERROR) << err.getMessage() << "\n";      \
-          });                                                 \
-      assert(!unknown && "Unknown error type");               \
-      errno = -1;                                             \
-    }                                                         \
+#define CLINK_JNA_HANDLE_ERROR(ERR, RET_VALUE)      \
+  do {                                              \
+    if (auto err = ERR) {                           \
+      TFRT_LOG(ERROR) << tfrt::StrCat(err) << "\n"; \
+      errno = -1;                                   \
+      return RET_VALUE;                             \
+    }                                               \
   } while (0);
 
 // Handles tfrt::RCReference<tfrt::ErrorAsyncValue> generated in Clink JNA
 // methods. This function prints corresponding error message to std::err and set
 // errno to 1, which causes Java codes to throw LastErrorException.
-#define CLINK_JNA_HANDLE_ASYNC_ERROR(ERR)                    \
-  getJnaHostContext()->Await(ERR.CopyRCRef());               \
-  if (ERR.IsError()) {                                       \
-    TFRT_LOG(ERROR) << tfrt::StrCat(ERR.GetError()) << "\n"; \
-    errno = -1;                                              \
-  }
+#define CLINK_JNA_HANDLE_ASYNC_ERROR(ERR, RET_VALUE)            \
+  do {                                                          \
+    if (ERR->IsError()) {                                       \
+      TFRT_LOG(ERROR) << tfrt::StrCat(ERR->GetError()) << "\n"; \
+      errno = -1;                                               \
+      return RET_VALUE;                                         \
+    }                                                           \
+  } while (0);
 
 namespace {
 inline tfrt::HostContext *getJnaHostContext() {
@@ -143,13 +142,18 @@ void SparseVector_delete(SparseVectorJNA *vector) {
 SparseVectorJNA *OneHotEncoderModel_transform(clink::OneHotEncoderModel *model,
                                               const int value,
                                               const int column_index) {
-  auto sparse_vector = model->transform(value, column_index);
-  CLINK_JNA_HANDLE_ASYNC_ERROR(sparse_vector)
-  // TODO: simplify the if logic here.
-  if (sparse_vector.IsError()) {
-    return NULL;
-  }
-  return getJnaHostContext()->Construct<SparseVectorJNA>(sparse_vector.get(),
+  tfrt::AsyncValueRef<int> value_ref = MakeAvailableAsyncValueRef<int>(value);
+  tfrt::AsyncValueRef<int> colum_index_ref =
+      MakeAvailableAsyncValueRef<int>(column_index);
+  llvm::SmallVector<tfrt::AsyncValue *, 4> inputs{
+      value_ref.GetAsyncValue(), colum_index_ref.GetAsyncValue()};
+
+  auto output = model->transform(inputs, getJnaExecutionContext())[0];
+  getJnaHostContext()->Await(output);
+  CLINK_JNA_HANDLE_ASYNC_ERROR(output, NULL);
+  clink::SparseVector &actual_vector = output->get<clink::SparseVector>();
+
+  return getJnaHostContext()->Construct<SparseVectorJNA>(actual_vector,
                                                          getJnaHostContext());
 }
 
@@ -163,9 +167,9 @@ clink::OneHotEncoderModel *OneHotEncoderModel_loadFromMemory(
   nlohmann::json params = nlohmann::json::parse(params_str);
   std::string is_droplast = params["dropLast"].get<std::string>();
   model->setDropLast(is_droplast != "false");
-  CLINK_JNA_HANDLE_ERROR(
-      model->setModelData(std::string(model_data_str, model_data_str_len)))
-
+  auto maybe_error =
+      model->setModelData(std::string(model_data_str, model_data_str_len));
+  CLINK_JNA_HANDLE_ERROR(std::move(maybe_error), NULL);
   return model;
 }
 
