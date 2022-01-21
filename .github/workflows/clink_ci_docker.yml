@@ -1,0 +1,22 @@
+name: Clink CI Docker
+
+on: [push, pull_request]
+
+jobs:
+  bazel_test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ["centos7.7.1908", "ubuntu16.04"]
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Update submodules
+        run: git submodule update --init --recursive
+      - name: Pull Docker image
+        run: docker pull docker.io/flinkextended/clink:${{matrix.os}}
+      - name: Run tests in Docker image
+        run: |
+          docker run -t -v ${GITHUB_WORKSPACE}:/root/clink -w /root/clink \
+            docker.io/flinkextended/clink:${{matrix.os}} /bin/bash \
+            bazel test $(bazel query //...)

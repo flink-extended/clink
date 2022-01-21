@@ -161,8 +161,8 @@ java_library(
         "@maven//:org_apache_flink_flink_table_api_java_bridge_%s" % SCALA_VERSION,
         "@maven//:org_apache_flink_flink_table_planner_%s" % SCALA_VERSION,
         "@maven//:org_apache_flink_flink_table_runtime_%s" % SCALA_VERSION,
-        "@maven//:org_apache_flink_flink_ml_core",
-        "@maven//:org_apache_flink_flink_ml_iteration",
+        "@maven//:org_apache_flink_flink_ml_core_%s" % SCALA_VERSION,
+        "@maven//:org_apache_flink_flink_ml_iteration_%s" % SCALA_VERSION,
         "@maven//:org_apache_flink_flink_ml_lib_%s" % SCALA_VERSION,
     ],
 )

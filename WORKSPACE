@@ -104,8 +104,8 @@ maven_install(
         "org.apache.flink:flink-table-planner_%s:%s" % (SCALA_VERSION, FLINK_VERSION),
         "org.apache.flink:flink-table-runtime_%s:%s" % (SCALA_VERSION, FLINK_VERSION),
         "org.apache.flink:flink-test-utils-junit:%s" % FLINK_VERSION,
-        "org.apache.flink:flink-ml-core:%s" % FLINK_ML_VERSION,
-        "org.apache.flink:flink-ml-iteration:%s" % FLINK_ML_VERSION,
+        "org.apache.flink:flink-ml-core_%s:%s" % (SCALA_VERSION, FLINK_ML_VERSION),
+        "org.apache.flink:flink-ml-iteration_%s:%s" % (SCALA_VERSION, FLINK_ML_VERSION),
         "org.apache.flink:flink-ml-lib_%s:%s" % (SCALA_VERSION, FLINK_ML_VERSION),
         "org.apache.commons:commons-compress:1.21",
         "commons-collections:commons-collections:3.2.2",
@@ -124,7 +124,6 @@ maven_install(
         "https://repo1.maven.org/maven2",
         "http://packages.confluent.io/maven",
         "http://mvnrepo.alibaba-inc.com/mvn/repository",
-        "https://repository.apache.org/content/repositories/orgapacheflink-1473",
     ],
 )
 
