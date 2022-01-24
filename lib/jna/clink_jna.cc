@@ -53,14 +53,18 @@ extern "C" {
   }
 
 namespace {
-tfrt::HostContext *getJnaHostContext() {
+inline tfrt::HostContext *getJnaHostContext() {
+#ifndef NDEBUG
+  static tfrt::HostAllocatorType allocator_type = tfrt::HostAllocatorType::kLeakCheckMalloc;
+#else
+  static tfrt::HostAllocatorType allocator_type = tfrt::HostAllocatorType::kMalloc;
+#endif
   static tfrt::HostContext *jna_host_context =
-      clink::CreateHostContext("mstd", tfrt::HostAllocatorType::kMalloc)
-          .release();
+      clink::CreateHostContext("mstd", allocator_type).release();
   return jna_host_context;
 }
 
-ExecutionContext &getJnaExecutionContext() {
+inline ExecutionContext &getJnaExecutionContext() {
   static ExecutionContext exec_ctx(
       *tfrt::RequestContextBuilder(getJnaHostContext(), nullptr).build());
   return exec_ctx;
@@ -88,7 +92,8 @@ double Square(double x) { return clink::Square(x); }
 // Struct representation of clink::SparseVector. It is only used for JNA to
 // transmit data between Java and C++.
 typedef struct SparseVectorJNA {
-  SparseVectorJNA(clink::SparseVector &);
+  SparseVectorJNA(const clink::SparseVector &vector,
+                  tfrt::HostContext *host_context);
   ~SparseVectorJNA();
 
   // Total dimensions of the sparse vector.
@@ -97,9 +102,13 @@ typedef struct SparseVectorJNA {
   double *values;
   // Length of indices and values array.
   int length;
+
+  tfrt::HostContext *host_;
 } SparseVectorJNA;
 
-SparseVectorJNA::SparseVectorJNA(clink::SparseVector &sparse_vector) {
+SparseVectorJNA::SparseVectorJNA(const clink::SparseVector &sparse_vector,
+                                 tfrt::HostContext *host_context)
+    : host_(host_context) {
   this->n = sparse_vector.size();
   this->length = 0;
   for (int i = 0; i < this->n; i++) {
@@ -108,8 +117,8 @@ SparseVectorJNA::SparseVectorJNA(clink::SparseVector &sparse_vector) {
     }
   }
 
-  this->indices = new int[this->length];
-  this->values = new double[this->length];
+  this->indices = host_->Allocate<int>(this->length);
+  this->values = host_->Allocate<double>(this->length);
   int offset = 0;
   for (int i = 0; i < this->n; i++) {
     if (sparse_vector.get(i).get() != 0.0) {
@@ -121,13 +130,13 @@ SparseVectorJNA::SparseVectorJNA(clink::SparseVector &sparse_vector) {
 }
 
 SparseVectorJNA::~SparseVectorJNA() {
-  delete[] this->indices;
-  this->indices = NULL;
-  delete[] this->values;
-  this->values = NULL;
+  host_->Deallocate(this->indices, this->length);
+  host_->Deallocate(this->values, this->length);
 }
 
-void SparseVector_delete(SparseVectorJNA *vector) { delete vector; }
+void SparseVector_delete(SparseVectorJNA *vector) {
+  getJnaHostContext()->Destruct(vector);
+}
 
 SparseVectorJNA *OneHotEncoderModel_transform(clink::OneHotEncoderModel *model,
                                               const int value,
@@ -138,7 +147,8 @@ SparseVectorJNA *OneHotEncoderModel_transform(clink::OneHotEncoderModel *model,
   if (sparse_vector.IsError()) {
     return NULL;
   }
-  return new SparseVectorJNA(sparse_vector.get());
+  return getJnaHostContext()->Construct<SparseVectorJNA>(sparse_vector.get(),
+                                                         getJnaHostContext());
 }
 
 clink::OneHotEncoderModel *
@@ -146,7 +156,8 @@ OneHotEncoderModel_loadFromMemory(const char *params_str,
                                   const char *model_data_str,
                                   const int model_data_str_len) {
   clink::OneHotEncoderModel *model =
-      new clink::OneHotEncoderModel(getJnaHostContext());
+      getJnaHostContext()->Construct<clink::OneHotEncoderModel>(
+          getJnaHostContext());
 
   nlohmann::json params = nlohmann::json::parse(params_str);
   std::string is_droplast = params["dropLast"].get<std::string>();
@@ -157,8 +168,8 @@ OneHotEncoderModel_loadFromMemory(const char *params_str,
   return model;
 }
 
-void OneHotEncoderModel_delete(const clink::OneHotEncoderModel *model) {
-  delete model;
+void OneHotEncoderModel_delete(clink::OneHotEncoderModel *model) {
+  model->DropRef();
 }
 
 #ifdef __cplusplus

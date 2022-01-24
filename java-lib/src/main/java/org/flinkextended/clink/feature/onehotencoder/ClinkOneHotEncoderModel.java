@@ -171,7 +171,10 @@ public class ClinkOneHotEncoderModel
         @Override
         public void close() throws Exception {
             super.close();
-            ClinkJna.INSTANCE.OneHotEncoderModel_delete(modelPointer);
+            if (modelPointer != null) {
+                ClinkJna.INSTANCE.OneHotEncoderModel_delete(modelPointer);
+                modelPointer = null;
+            }
         }
     }
 

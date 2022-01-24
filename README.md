@@ -65,21 +65,14 @@ above, please check the [TFRT](https://github.com/tensorflow/runtime) README for
 more detailed instructions to install, configure and verify Bazel, Clang, and
 libstdc++8.
 
-### Building Clink from Source
+### Initializing Submodules before building Clink from Source
 
 After setting up the environment according to the instructions above and pulling
-Clink repository, please use the following command to update submodules like
-TFRT.
+Clink repository, please use the following command to initialize submodules like
+TFRT before building any Clink target from source.
 
 ```bash
 $ git submodule update --init --recursive
-```
-
-Then, users can run the following command to build all targets and to run all
-tests.
-
-```bash
-$ bazel test $(bazel query //...)
 ```
 
 ### Executing Examples
@@ -94,6 +87,15 @@ $ bazel run //:executor -- `pwd`/mlir_test/executor/basic.mlir --work_queue_type
 <!-- TODO: Add detailed example illustrating the usage of Clink Runner API. -->
 
 ## Developer Guidelines
+
+### Running All Tests
+
+Developers can run the following command to build all targets and to run all
+tests.
+
+```bash
+$ bazel test $(bazel query //...) -c dbg
+```
 
 ### Code Formatting
 
