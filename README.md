@@ -65,7 +65,7 @@ above, please check the [TFRT](https://github.com/tensorflow/runtime) README for
 more detailed instructions to install, configure and verify Bazel, Clang, and
 libstdc++8.
 
-### Initializing Submodules before Building Clink from Source
+### Initializing Submodules before building Clink from Source
 
 After setting up the environment according to the instructions above and pulling
 Clink repository, please use the following command to initialize submodules like
