@@ -19,7 +19,6 @@
 #include "clink/utils/clink_utils.h"
 #include "llvm/Support/Errc.h"
 #include "llvm/Support/Error.h"
-#include "nlohmann/json.hpp"
 #include "tfrt/host_context/chain.h"
 #include "tfrt/support/logging.h"
 
@@ -157,20 +156,10 @@ SparseVectorJNA *OneHotEncoderModel_transform(clink::OneHotEncoderModel *model,
                                                          getJnaHostContext());
 }
 
-clink::OneHotEncoderModel *OneHotEncoderModel_loadFromMemory(
-    const char *params_str, const char *model_data_str,
-    const int model_data_str_len) {
-  clink::OneHotEncoderModel *model =
-      getJnaHostContext()->Construct<clink::OneHotEncoderModel>(
-          getJnaHostContext());
-
-  nlohmann::json params = nlohmann::json::parse(params_str);
-  std::string is_droplast = params["dropLast"].get<std::string>();
-  model->setDropLast(is_droplast != "false");
-  auto maybe_error =
-      model->setModelData(std::string(model_data_str, model_data_str_len));
-  CLINK_JNA_HANDLE_ERROR(std::move(maybe_error), NULL);
-  return model;
+clink::OneHotEncoderModel *OneHotEncoderModel_load(const char *path) {
+  auto model = clink::OneHotEncoderModel::load(path, getJnaHostContext());
+  CLINK_JNA_HANDLE_ERROR(model.takeError(), NULL);
+  return model->release();
 }
 
 void OneHotEncoderModel_delete(clink::OneHotEncoderModel *model) {

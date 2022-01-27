@@ -75,51 +75,11 @@ TEST_F(OneHotEncoderTest, Param) {
 }
 
 TEST_F(OneHotEncoderTest, Transform) {
-  OneHotEncoderModelDataProto model_data;
-  model_data.add_featuresizes(2);
-  model_data.add_featuresizes(3);
-  std::string model_data_str;
-  model_data.SerializeToString(&model_data_str);
-
-  RCReference<OneHotEncoderModel> model =
-      tfrt::TakeRef(host_context->Construct<OneHotEncoderModel>(host_context));
-  model->setDropLast(false);
-  llvm::Error err = model->setModelData(std::move(model_data_str));
-  EXPECT_FALSE(err);
-
-  SparseVector expected_vector(2);
-  expected_vector.set(1, 1.0);
-
-  {
-    tfrt::AsyncValueRef<int> value_ref = MakeAvailableAsyncValueRef<int>(1);
-    tfrt::AsyncValueRef<int> colum_index_ref =
-        MakeAvailableAsyncValueRef<int>(0);
-    llvm::SmallVector<tfrt::AsyncValue *, 4> inputs{
-        value_ref.GetAsyncValue(), colum_index_ref.GetAsyncValue()};
-
-    auto outputs = model->transform(inputs, *exec_context);
-    host_context->Await(outputs);
-    SparseVector &actual_vector = outputs[0]->get<SparseVector>();
-    EXPECT_EQ(actual_vector, expected_vector);
-  }
-
-  {
-    tfrt::AsyncValueRef<int> value_ref = MakeAvailableAsyncValueRef<int>(5);
-    tfrt::AsyncValueRef<int> colum_index_ref =
-        MakeAvailableAsyncValueRef<int>(5);
-    llvm::SmallVector<tfrt::AsyncValue *, 4> inputs{
-        value_ref.GetAsyncValue(), colum_index_ref.GetAsyncValue()};
-
-    auto outputs = model->transform(inputs, *exec_context);
-    host_context->Await(outputs);
-    EXPECT_EQ(outputs[0]->GetError().message, "Column index out of range.");
-  }
-}
-
-TEST_F(OneHotEncoderTest, Load) {
   test::TemporaryFolder tmp_folder;
 
   nlohmann::json params;
+  // TODO: Add helper function that converts between json data of structured
+  // format and that of Flink ML, which wraps all values as strings
   params["paramMap"]["dropLast"] = "false";
 
   OneHotEncoderModelDataProto model_data;

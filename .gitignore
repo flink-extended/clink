@@ -11,3 +11,4 @@ protos/*.h
 *.iml
 .ijwb/
 java-lib/target
+.DS_Store

@@ -44,13 +44,6 @@ under the License.
     <connection>git@github.com:flink-extended/clink.git</connection>
   </scm>
 
-  <repositories>
-    <repository>
-      <id>flink-ml-2.0.0-rc1</id>
-      <url>https://repository.apache.org/content/repositories/orgapacheflink-1473</url>
-    </repository>
-  </repositories>
-
   <properties>
     <flink.version>1.14.0</flink.version>
     <flink.ml.version>2.0.0</flink.ml.version>
@@ -89,7 +82,7 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>
-      <artifactId>flink-ml-core</artifactId>
+      <artifactId>flink-ml-core_${scala.version}</artifactId>
       <version>${flink.ml.version}</version>
     </dependency>
     <dependency>

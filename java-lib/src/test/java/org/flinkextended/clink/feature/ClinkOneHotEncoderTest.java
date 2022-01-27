@@ -32,7 +32,6 @@ import org.apache.flink.types.Row;
 import com.sun.jna.LastErrorException;
 import org.flinkextended.clink.feature.onehotencoder.ClinkOneHotEncoder;
 import org.flinkextended.clink.feature.onehotencoder.ClinkOneHotEncoderModel;
-import org.flinkextended.clink.util.StageTestUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,6 +47,7 @@ public class ClinkOneHotEncoderTest {
     private StreamExecutionEnvironment env;
     private StreamTableEnvironment tEnv;
     private ClinkOneHotEncoder estimator;
+    private String savePath;
     private static final Row[] trainInput = new Row[] {Row.of(0, 1), Row.of(2, 3)};
     private static final Row predictInput = Row.of(0, 1);
     private static final Row expectedOutput =
@@ -58,7 +58,7 @@ public class ClinkOneHotEncoderTest {
                     Vectors.sparse(3, new int[] {1}, new double[] {1.0}));
 
     @Before
-    public void before() {
+    public void before() throws Exception {
         Configuration config = new Configuration();
         config.set(ExecutionCheckpointingOptions.ENABLE_CHECKPOINTS_AFTER_TASKS_FINISH, true);
         env = StreamExecutionEnvironment.getExecutionEnvironment(config);
@@ -72,16 +72,20 @@ public class ClinkOneHotEncoderTest {
                         .setInputCols("a", "b")
                         .setOutputCols("c", "d")
                         .setDropLast(false);
+
+        savePath = tempFolder.newFolder().getAbsolutePath();
     }
 
     @Test
-    public void testFitAndPredict() {
+    public void testFitAndPredict() throws Exception {
         DataStream<Row> trainStream = env.fromElements(trainInput);
         Table trainTable = tEnv.fromDataStream(trainStream).as("a", "b");
         DataStream<Row> predictStream = env.fromElements(predictInput);
         Table predictTable = tEnv.fromDataStream(predictStream).as("a", "b");
 
-        ClinkOneHotEncoderModel model = estimator.fit(trainTable);
+        estimator.fit(trainTable).save(savePath);
+        env.execute();
+        ClinkOneHotEncoderModel model = ClinkOneHotEncoderModel.load(env, savePath);
 
         Table outputTable = model.transform(predictTable)[0];
 
@@ -90,13 +94,15 @@ public class ClinkOneHotEncoderTest {
     }
 
     @Test
-    public void testInvalidInput() {
+    public void testInvalidInput() throws Exception {
         DataStream<Row> trainStream = env.fromElements(trainInput);
         Table trainTable = tEnv.fromDataStream(trainStream).as("a", "b");
         DataStream<Row> predictStream = env.fromElements(Row.of(5, 6));
         Table predictTable = tEnv.fromDataStream(predictStream).as("a", "b");
 
-        ClinkOneHotEncoderModel model = estimator.fit(trainTable);
+        estimator.fit(trainTable).save(savePath);
+        env.execute();
+        ClinkOneHotEncoderModel model = ClinkOneHotEncoderModel.load(env, savePath);
 
         Table outputTable = model.transform(predictTable)[0];
 
@@ -110,28 +116,6 @@ public class ClinkOneHotEncoderTest {
             }
             assertEquals(LastErrorException.class, exception.getClass());
         }
-    }
-
-    @Test
-    public void testSaveAndLoad() throws Exception {
-        ClinkOneHotEncoder estimatorB =
-                StageTestUtils.saveAndReload(
-                        env, estimator, tempFolder.newFolder().getAbsolutePath());
-
-        DataStream<Row> trainStream = env.fromElements(trainInput);
-        Table trainTable = tEnv.fromDataStream(trainStream).as("a", "b");
-        DataStream<Row> predictStream = env.fromElements(predictInput);
-        Table predictTable = tEnv.fromDataStream(predictStream).as("a", "b");
-
-        ClinkOneHotEncoderModel modelA = estimatorB.fit(trainTable);
-
-        ClinkOneHotEncoderModel modelB =
-                StageTestUtils.saveAndReload(env, modelA, tempFolder.newFolder().getAbsolutePath());
-
-        Table outputTable = modelB.transform(predictTable)[0];
-
-        Row actual = outputTable.execute().collect().next();
-        assertEquals(expectedOutput, actual);
     }
 
     @Test
@@ -150,7 +134,7 @@ public class ClinkOneHotEncoderTest {
     }
 
     @Test
-    public void testSetModelData() {
+    public void testSetModelData() throws Exception {
         DataStream<Row> trainStream = env.fromElements(trainInput);
         Table trainTable = tEnv.fromDataStream(trainStream).as("a", "b");
         DataStream<Row> predictStream = env.fromElements(predictInput);
@@ -161,8 +145,11 @@ public class ClinkOneHotEncoderTest {
         Table modelData = modelA.getModelData()[0];
         ClinkOneHotEncoderModel modelB = new ClinkOneHotEncoderModel().setModelData(modelData);
         ReadWriteUtils.updateExistingParams(modelB, modelA.getParamMap());
+        modelB.save(savePath);
+        env.execute();
+        ClinkOneHotEncoderModel modelC = ClinkOneHotEncoderModel.load(env, savePath);
 
-        Table outputTable = modelB.transform(predictTable)[0];
+        Table outputTable = modelC.transform(predictTable)[0];
 
         Row actual = outputTable.execute().collect().next();
         Row expected =
