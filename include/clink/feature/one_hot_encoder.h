@@ -25,7 +25,7 @@ namespace clink {
 
 // A Model which encodes data into one-hot format.
 class OneHotEncoderModel : public Model {
-public:
+ public:
   // Default constructor.
   OneHotEncoderModel(tfrt::HostContext *host) : allocator_(host->allocator()) {}
 
@@ -45,8 +45,8 @@ public:
   // Loads a OneHotEncoderModel from given path. The path should be a directory
   // containing params and model data saved through
   // org.clink.feature.onehotencoder.ClinkOneHotEnoderModel::save(...).
-  static llvm::Expected<tfrt::RCReference<OneHotEncoderModel>>
-  load(const std::string &path, tfrt::HostContext *host);
+  static llvm::Expected<tfrt::RCReference<OneHotEncoderModel>> load(
+      const std::string &path, tfrt::HostContext *host);
 
   void setDropLast(const bool is_droplast);
 
@@ -56,7 +56,7 @@ public:
   // data string.
   llvm::Error setModelData(const std::string &model_data_str);
 
-private:
+ private:
   void Destroy() override {
     Model::DestroyImpl<OneHotEncoderModel>(this, allocator_);
   }
@@ -76,6 +76,6 @@ private:
   tfrt::HostAllocator *allocator_;
 };
 
-} // namespace clink
+}  // namespace clink
 
-#endif // CLINK_FEATURE_ONE_HOT_ENCODER_H_
+#endif  // CLINK_FEATURE_ONE_HOT_ENCODER_H_

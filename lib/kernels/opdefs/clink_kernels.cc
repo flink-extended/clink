@@ -41,13 +41,10 @@ ClinkDialect::ClinkDialect(MLIRContext *context)
 
 mlir::Type ClinkDialect::parseType(mlir::DialectAsmParser &parser) const {
   llvm::StringRef spec = parser.getFullSymbolSpec();
-  if (spec == "model")
-    return ModelType::get(getContext());
-  if (spec == "vector")
-    return VectorType::get(getContext());
+  if (spec == "model") return ModelType::get(getContext());
+  if (spec == "vector") return VectorType::get(getContext());
 
-  if (auto type = mlir::Dialect::parseType(parser))
-    return type;
+  if (auto type = mlir::Dialect::parseType(parser)) return type;
 
   mlir::Location loc = parser.getEncodedSourceLoc(parser.getNameLoc());
   mlir::emitError(loc) << "unknown data type " << spec;
@@ -69,7 +66,7 @@ void ClinkDialect::printType(mlir::Type type,
   llvm_unreachable("unknown data type");
 }
 
-} // namespace clink
+}  // namespace clink
 
 //===----------------------------------------------------------------------===//
 // TableGen'd op method definitions

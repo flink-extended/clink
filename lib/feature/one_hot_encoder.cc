@@ -23,8 +23,8 @@
 
 namespace clink {
 
-tfrt::AsyncValueRef<SparseVector>
-OneHotEncoderModel::transform(const int value, const int column_index) const {
+tfrt::AsyncValueRef<SparseVector> OneHotEncoderModel::transform(
+    const int value, const int column_index) const {
   if (column_index >= model_data_.featuresizes_size()) {
     return tfrt::MakeErrorAsyncValueRef("Column index out of range.");
   }
@@ -51,8 +51,8 @@ void OneHotEncoderModel::setDropLast(const bool is_droplast) {
 
 bool OneHotEncoderModel::getDropLast() const { return params_.is_droplast; }
 
-llvm::Error
-OneHotEncoderModel::setModelData(const std::string &model_data_str) {
+llvm::Error OneHotEncoderModel::setModelData(
+    const std::string &model_data_str) {
   OneHotEncoderModelDataProto model_data;
 
   if (!model_data.ParseFromString(model_data_str)) {
@@ -71,8 +71,8 @@ OneHotEncoderModel::setModelData(const std::string &model_data_str) {
   return llvm::Error::success();
 }
 
-llvm::Expected<tfrt::RCReference<OneHotEncoderModel>>
-OneHotEncoderModel::load(const std::string &path, tfrt::HostContext *host) {
+llvm::Expected<tfrt::RCReference<OneHotEncoderModel>> OneHotEncoderModel::load(
+    const std::string &path, tfrt::HostContext *host) {
   tfrt::RCReference<OneHotEncoderModel> model =
       TakeRef(host->Construct<OneHotEncoderModel>(host));
 
@@ -105,4 +105,4 @@ OneHotEncoderModel::load(const std::string &path, tfrt::HostContext *host) {
   return model;
 }
 
-} // namespace clink
+}  // namespace clink

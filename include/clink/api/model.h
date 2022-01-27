@@ -25,7 +25,7 @@ namespace clink {
 // Basic interface for Clink operators that provides feature processing
 // function.
 class Model : public tfrt::ReferenceCounted<Model> {
-public:
+ public:
   virtual ~Model() {}
 
   template <typename SubClass>
@@ -34,13 +34,13 @@ public:
     allocator->DeallocateBytes(ptr, sizeof(SubClass));
   }
 
-private:
+ private:
   // For access to Destroy().
   friend class ReferenceCounted<Model>;
 
   virtual void Destroy() = 0;
 };
 
-} // namespace clink
+}  // namespace clink
 
-#endif // CLINK_API_MODEL_H_
+#endif  // CLINK_API_MODEL_H_

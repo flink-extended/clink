@@ -23,7 +23,7 @@ namespace clink {
 
 // A sparse vector of double values.
 class SparseVector : public Vector {
-public:
+ public:
   // Constructor for SparseVector.
   // `n` stands for the number of dimensions of the vector.
   explicit SparseVector(const int n) : n_(n) {}
@@ -47,12 +47,12 @@ public:
 
   bool operator==(const SparseVector &other) const;
 
-private:
+ private:
   const int n_;
   llvm::SmallVector<int, 4> indices_;
   llvm::SmallVector<double, 4> values_;
 };
 
-} // namespace clink
+}  // namespace clink
 
-#endif // CLINK_LINALG_SPARSE_VECTOR_H_
+#endif  // CLINK_LINALG_SPARSE_VECTOR_H_

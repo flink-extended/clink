@@ -62,4 +62,4 @@ bool SparseVector::operator==(const SparseVector &other) const {
   return true;
 }
 
-} // namespace clink
+}  // namespace clink
