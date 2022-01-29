@@ -23,16 +23,16 @@ namespace clink {
 
 class ModelType
     : public mlir::Type::TypeBase<ModelType, mlir::Type, mlir::TypeStorage> {
-public:
+ public:
   using Base::Base;
 };
 
 class VectorType
     : public mlir::Type::TypeBase<VectorType, mlir::Type, mlir::TypeStorage> {
-public:
+ public:
   using Base::Base;
 };
 
-} // namespace clink
+}  // namespace clink
 
-#endif // CLINK_FEATURE_OPDEFS_TYPES_H_
+#endif  // CLINK_FEATURE_OPDEFS_TYPES_H_

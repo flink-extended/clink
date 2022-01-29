@@ -23,16 +23,16 @@ using namespace tfrt;
 
 namespace clink {
 
-#define CLINK_RETURN_IF_ERROR(KERNEL_ERROR, ERR)                               \
-  do {                                                                         \
-    if (auto err = ERR) {                                                      \
-      llvm::Error unknown = llvm::handleErrors(                                \
-          std::move(err), [&](const llvm::StringError &err) {                  \
-            KERNEL_ERROR.ReportError(err.getMessage());                        \
-          });                                                                  \
-      assert(!unknown && "Unknown error type");                                \
-      return;                                                                  \
-    }                                                                          \
+#define CLINK_RETURN_IF_ERROR(KERNEL_ERROR, ERR)              \
+  do {                                                        \
+    if (auto err = ERR) {                                     \
+      llvm::Error unknown = llvm::handleErrors(               \
+          std::move(err), [&](const llvm::StringError &err) { \
+            KERNEL_ERROR.ReportError(err.getMessage());       \
+          });                                                 \
+      assert(!unknown && "Unknown error type");               \
+      return;                                                 \
+    }                                                         \
   } while (0)
 
 AsyncValueRef<double> SquareAdd(Argument<double> x, Argument<double> y,
@@ -73,10 +73,9 @@ void OneHotEncoderLoad(Argument<std::string> path,
   result_model.Emplace(model.get());
 }
 
-AsyncValueRef<SparseVector>
-OneHotEncoderTransform(RCReference<OneHotEncoderModel> model,
-                       Argument<int> value, Argument<int> column_index,
-                       const ExecutionContext &exec_ctx) {
+AsyncValueRef<SparseVector> OneHotEncoderTransform(
+    RCReference<OneHotEncoderModel> model, Argument<int> value,
+    Argument<int> column_index, const ExecutionContext &exec_ctx) {
   return model->transform(value.get(), column_index.get());
 }
 
@@ -93,4 +92,4 @@ void RegisterClinkKernels(tfrt::KernelRegistry *registry) {
                       TFRT_KERNEL(OneHotEncoderTransform));
 }
 
-} // namespace clink
+}  // namespace clink

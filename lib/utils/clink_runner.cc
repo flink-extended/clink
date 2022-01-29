@@ -42,7 +42,9 @@ ClinkRunner ClinkRunner::Builder::Compile() {
 
 ClinkRunner::ClinkRunner(const std::string &fn_name, BefBuffer bef_buffer,
                          HostContext *host_context)
-    : fn_name_(fn_name), bef_buffer_(bef_buffer), host_context_(host_context),
+    : fn_name_(fn_name),
+      bef_buffer_(bef_buffer),
+      host_context_(host_context),
       execution_context_(
           *tfrt::RequestContextBuilder(host_context_, resource_context_.get())
                .build()) {
@@ -52,8 +54,8 @@ ClinkRunner::ClinkRunner(const std::string &fn_name, BefBuffer bef_buffer,
   func_ = bef_file_->GetFunction(fn_name_);
 }
 
-llvm::SmallVector<RCReference<AsyncValue>, 4>
-ClinkRunner::Run(ArrayRef<RCReference<AsyncValue>> inputs) {
+llvm::SmallVector<RCReference<AsyncValue>, 4> ClinkRunner::Run(
+    ArrayRef<RCReference<AsyncValue>> inputs) {
   assert((func_->num_arguments() == inputs.size()) &&
          "Incorrect number of arguments set.");
 
@@ -68,4 +70,4 @@ ClinkRunner::Run(ArrayRef<RCReference<AsyncValue>> inputs) {
   return std::move(results);
 }
 
-} // namespace clink
+}  // namespace clink

@@ -21,9 +21,8 @@ using namespace tfrt;
 
 namespace clink {
 
-std::unique_ptr<tfrt::HostContext>
-CreateHostContext(string_view work_queue_type,
-                  tfrt::HostAllocatorType host_allocator_type);
+std::unique_ptr<tfrt::HostContext> CreateHostContext(
+    string_view work_queue_type, tfrt::HostAllocatorType host_allocator_type);
 
 // Given a directory path, gets the only file in the directory.
 //
@@ -36,6 +35,6 @@ CreateHostContext(string_view work_queue_type,
 // is zero or more than one file in the directory.
 std::string getOnlyFileInDirectory(std::string path);
 
-} // namespace clink
+}  // namespace clink
 
-#endif // CLINK_UTILS_CLINK_UTILS_H_
+#endif  // CLINK_UTILS_CLINK_UTILS_H_

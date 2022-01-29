@@ -28,7 +28,7 @@ namespace clink {
 
 // Dialect for clink operations.
 class ClinkDialect : public Dialect {
-public:
+ public:
   static StringRef getDialectNamespace() { return "clink"; }
   explicit ClinkDialect(MLIRContext *context);
 
@@ -37,9 +37,9 @@ public:
                  mlir::DialectAsmPrinter &printer) const override;
 };
 
-} // namespace clink
+}  // namespace clink
 
 #define GET_OP_CLASSES
 #include "clink/kernels/opdefs/clink_kernels.h.inc"
 
-#endif // CLINK_KERNELS_OPDEFS_CLINK_KERNELS_H_
+#endif  // CLINK_KERNELS_OPDEFS_CLINK_KERNELS_H_

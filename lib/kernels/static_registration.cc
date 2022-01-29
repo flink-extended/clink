@@ -23,4 +23,4 @@ namespace clink {
 
 TFRT_STATIC_KERNEL_REGISTRATION(RegisterClinkKernels);
 
-} // namespace clink
+}  // namespace clink

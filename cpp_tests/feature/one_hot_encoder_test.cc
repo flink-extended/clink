@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#include "clink/cpp_tests/test_util.h"
 #include "clink/feature/one_hot_encoder.h"
+
+#include "clink/cpp_tests/test_util.h"
 #include "gtest/gtest.h"
 
 namespace clink {
@@ -23,7 +24,7 @@ namespace clink {
 namespace {
 
 class OneHotEncoderTest : public testing::Test {
-protected:
+ protected:
   static void SetUpTestSuite() {
     assert(host_context == nullptr);
     host_context =
@@ -160,5 +161,5 @@ TEST_F(OneHotEncoderTest, Mlir) {
   EXPECT_TRUE(invalid_results[0]->IsError());
 }
 
-} // namespace
-} // namespace clink
+}  // namespace
+}  // namespace clink

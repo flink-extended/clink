@@ -23,7 +23,7 @@ namespace clink {
 
 // A vector of double values.
 class Vector {
-public:
+ public:
   // Sets the value at a certain index of the vector.
   virtual llvm::Error set(const int index, const double value) = 0;
 
@@ -33,7 +33,7 @@ public:
   // Gets the total number of dimensions of the vector.
   virtual int size() const = 0;
 
-protected:
+ protected:
   // Move operations are supported.
   Vector(Vector &&other) = default;
   Vector &operator=(Vector &&other) = default;
@@ -47,6 +47,6 @@ protected:
   virtual ~Vector() {}
 };
 
-} // namespace clink
+}  // namespace clink
 
-#endif // CLINK_LINALG_VECTOR_H_
+#endif  // CLINK_LINALG_VECTOR_H_

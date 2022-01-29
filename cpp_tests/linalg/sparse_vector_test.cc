@@ -42,5 +42,5 @@ TEST(SparseVectorTest, SetGetValue) {
   EXPECT_TRUE((bool)vector.get(5).takeError());
 }
 
-} // namespace
-} // namespace clink
+}  // namespace
+}  // namespace clink

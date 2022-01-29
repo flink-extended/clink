@@ -17,11 +17,11 @@
 #include "clink/feature/one_hot_encoder.h"
 #include "clink/kernels/clink_kernels.h"
 #include "clink/utils/clink_utils.h"
+#include "llvm/Support/Errc.h"
+#include "llvm/Support/Error.h"
 #include "nlohmann/json.hpp"
 #include "tfrt/host_context/chain.h"
 #include "tfrt/support/logging.h"
-#include "llvm/Support/Errc.h"
-#include "llvm/Support/Error.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,34 +30,36 @@ extern "C" {
 // Handles llvm::Error generated in Clink JNA methods. This function prints
 // corresponding error message to std::err and set errno to 1, which causes Java
 // codes to throw LastErrorException.
-#define CLINK_JNA_HANDLE_ERROR(ERR)                                            \
-  do {                                                                         \
-    if (auto err = ERR) {                                                      \
-      llvm::Error unknown = llvm::handleErrors(                                \
-          std::move(err), [&](const llvm::StringError &err) {                  \
-            TFRT_LOG(ERROR) << err.getMessage() << "\n";                       \
-          });                                                                  \
-      assert(!unknown && "Unknown error type");                                \
-      errno = -1;                                                              \
-    }                                                                          \
+#define CLINK_JNA_HANDLE_ERROR(ERR)                           \
+  do {                                                        \
+    if (auto err = ERR) {                                     \
+      llvm::Error unknown = llvm::handleErrors(               \
+          std::move(err), [&](const llvm::StringError &err) { \
+            TFRT_LOG(ERROR) << err.getMessage() << "\n";      \
+          });                                                 \
+      assert(!unknown && "Unknown error type");               \
+      errno = -1;                                             \
+    }                                                         \
   } while (0);
 
 // Handles tfrt::RCReference<tfrt::ErrorAsyncValue> generated in Clink JNA
 // methods. This function prints corresponding error message to std::err and set
 // errno to 1, which causes Java codes to throw LastErrorException.
-#define CLINK_JNA_HANDLE_ASYNC_ERROR(ERR)                                      \
-  getJnaHostContext()->Await(ERR.CopyRCRef());                                 \
-  if (ERR.IsError()) {                                                         \
-    TFRT_LOG(ERROR) << tfrt::StrCat(ERR.GetError()) << "\n";                   \
-    errno = -1;                                                                \
+#define CLINK_JNA_HANDLE_ASYNC_ERROR(ERR)                    \
+  getJnaHostContext()->Await(ERR.CopyRCRef());               \
+  if (ERR.IsError()) {                                       \
+    TFRT_LOG(ERROR) << tfrt::StrCat(ERR.GetError()) << "\n"; \
+    errno = -1;                                              \
   }
 
 namespace {
 inline tfrt::HostContext *getJnaHostContext() {
 #ifndef NDEBUG
-  static tfrt::HostAllocatorType allocator_type = tfrt::HostAllocatorType::kLeakCheckMalloc;
+  static tfrt::HostAllocatorType allocator_type =
+      tfrt::HostAllocatorType::kLeakCheckMalloc;
 #else
-  static tfrt::HostAllocatorType allocator_type = tfrt::HostAllocatorType::kMalloc;
+  static tfrt::HostAllocatorType allocator_type =
+      tfrt::HostAllocatorType::kMalloc;
 #endif
   static tfrt::HostContext *jna_host_context =
       clink::CreateHostContext("mstd", allocator_type).release();
@@ -70,7 +72,7 @@ inline ExecutionContext &getJnaExecutionContext() {
   return exec_ctx;
 }
 
-} // namespace
+}  // namespace
 
 double SquareAdd(double x, double y) {
   ExecutionContext &exec_ctx = getJnaExecutionContext();
@@ -151,10 +153,9 @@ SparseVectorJNA *OneHotEncoderModel_transform(clink::OneHotEncoderModel *model,
                                                          getJnaHostContext());
 }
 
-clink::OneHotEncoderModel *
-OneHotEncoderModel_loadFromMemory(const char *params_str,
-                                  const char *model_data_str,
-                                  const int model_data_str_len) {
+clink::OneHotEncoderModel *OneHotEncoderModel_loadFromMemory(
+    const char *params_str, const char *model_data_str,
+    const int model_data_str_len) {
   clink::OneHotEncoderModel *model =
       getJnaHostContext()->Construct<clink::OneHotEncoderModel>(
           getJnaHostContext());

@@ -27,9 +27,9 @@ namespace clink {
 // This class is a utility class that provides support for users to specify an
 // MLIR function, supply inputs and then have it compiled and run through TFRT.
 class ClinkRunner {
-public:
+ public:
   class Builder {
-  public:
+   public:
     Builder();
 
     // Sets the MLIR function string and returns the object to chain setters.
@@ -70,7 +70,7 @@ public:
     // are not set.
     ClinkRunner Compile();
 
-  private:
+   private:
     std::string mlir_input_;
     std::string fn_name_;
     mlir::MLIRContext *mlir_context_ = nullptr;
@@ -78,10 +78,10 @@ public:
   };
 
   // Runs the MLIR function on TFRT and returns the outputs.
-  llvm::SmallVector<RCReference<AsyncValue>, 4>
-  Run(llvm::ArrayRef<RCReference<AsyncValue>> inputs);
+  llvm::SmallVector<RCReference<AsyncValue>, 4> Run(
+      llvm::ArrayRef<RCReference<AsyncValue>> inputs);
 
-private:
+ private:
   // Use ClinkRunner::Builder to get a ClinkRunner object.
   ClinkRunner(const std::string &fn_name, BefBuffer bef_buffer,
               HostContext *host_context);
@@ -95,6 +95,6 @@ private:
   ExecutionContext execution_context_;
 };
 
-} // namespace clink
+}  // namespace clink
 
-#endif // CLINK_UTILS_CLINK_RUNNER_H_
+#endif  // CLINK_UTILS_CLINK_RUNNER_H_

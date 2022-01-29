@@ -19,8 +19,9 @@
 #define CLINK_CPP_TESTS_TEST_UTIL_H_
 
 #include <dirent.h>
-#include <fstream>
 #include <sys/stat.h>
+
+#include <fstream>
 
 #include "clink/kernels/opdefs/clink_kernels.h"
 #include "clink/utils/clink_runner.h"
@@ -35,7 +36,7 @@ namespace test {
 // This class represents a temporary folder used for unit tests. The folder will
 // be deleted automatically once this object is freed.
 class TemporaryFolder {
-public:
+ public:
   TemporaryFolder() {
     char dir_template[] = "/tmp/clink-test-tmp.XXXXXX";
     dir_name = std::string(mkdtemp(dir_template));
@@ -45,7 +46,7 @@ public:
 
   const std::string getAbsolutePath() { return dir_name; }
 
-private:
+ private:
   void deleteFolderRecursively(std::string path) {
     struct dirent *entry;
     struct stat st;
@@ -56,8 +57,7 @@ private:
     }
     while ((entry = readdir(dir)) != NULL) {
       const std::string full_file_name = path + "/" + entry->d_name;
-      if (stat(full_file_name.c_str(), &st) == -1)
-        continue;
+      if (stat(full_file_name.c_str(), &st) == -1) continue;
       bool is_directory = (st.st_mode & S_IFDIR) != 0;
       if (is_directory) {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
@@ -90,10 +90,9 @@ void saveMetaDataModelData(std::string dir_name, nlohmann::json params,
 
 // Creates a ClinkRunner, executes the provided mlir script and returns the
 // execution result.
-llvm::SmallVector<RCReference<AsyncValue>, 4>
-runMlirScript(tfrt::HostContext *host_context, MLIRContext *mlir_context,
-              string_view mlir_script,
-              llvm::ArrayRef<RCReference<AsyncValue>> inputs) {
+llvm::SmallVector<RCReference<AsyncValue>, 4> runMlirScript(
+    tfrt::HostContext *host_context, MLIRContext *mlir_context,
+    string_view mlir_script, llvm::ArrayRef<RCReference<AsyncValue>> inputs) {
   // Initializes ClinkRunner.
   clink::ClinkRunner::Builder builder;
   builder.set_mlir_fn_name("main")
@@ -105,7 +104,7 @@ runMlirScript(tfrt::HostContext *host_context, MLIRContext *mlir_context,
   return runner.Run(inputs);
 }
 
-} // namespace test
-} // namespace clink
+}  // namespace test
+}  // namespace clink
 
-#endif // CLINK_CPP_TESTS_TEST_UTIL_H_
+#endif  // CLINK_CPP_TESTS_TEST_UTIL_H_

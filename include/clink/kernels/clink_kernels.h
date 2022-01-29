@@ -28,6 +28,6 @@ double Square(double x);
 
 void RegisterClinkKernels(tfrt::KernelRegistry *registry);
 
-} // namespace clink
+}  // namespace clink
 
-#endif // CLINK_KERNELS_CLINK_KERNELS_H_
+#endif  // CLINK_KERNELS_CLINK_KERNELS_H_

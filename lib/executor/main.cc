@@ -17,13 +17,13 @@
 #include "clink/kernels/opdefs/clink_kernels.h"
 #include "clink/utils/clink_runner.h"
 #include "clink/utils/clink_utils.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/InitLLVM.h"
+#include "llvm/Support/SourceMgr.h"
 #include "mlir/Support/FileUtilities.h"
 #include "tfrt/basic_kernels/opdefs/basic_kernels.h"
 #include "tfrt/bef_executor_driver/bef_executor_driver.h"
 #include "tfrt/host_context/host_context.h"
-#include "llvm/Support/CommandLine.h"
-#include "llvm/Support/InitLLVM.h"
-#include "llvm/Support/SourceMgr.h"
 
 using namespace mlir;
 
@@ -31,18 +31,18 @@ static llvm::cl::opt<std::string> inputFilename(llvm::cl::Positional,
                                                 llvm::cl::desc("<input file>"),
                                                 llvm::cl::init("-"));
 
-static llvm::cl::list<std::string> cl_functions( // NOLINT
+static llvm::cl::list<std::string> cl_functions(  // NOLINT
     "functions", llvm::cl::desc("Specify MLIR functions to run"),
     llvm::cl::ZeroOrMore, llvm::cl::MiscFlags::CommaSeparated);
 
 // Enable ConcurrentWorkQueue types to be specified on the command line.
-static llvm::cl::opt<std::string> cl_work_queue_type( // NOLINT
+static llvm::cl::opt<std::string> cl_work_queue_type(  // NOLINT
     "work_queue_type",
     llvm::cl::desc("Specify concurrent work queue type (s, mstd, ...):"),
     llvm::cl::init("s"));
 
 // Enable HostAllocator types to be specified on the command line.
-static llvm::cl::opt<tfrt::HostAllocatorType> cl_host_allocator_type( // NOLINT
+static llvm::cl::opt<tfrt::HostAllocatorType> cl_host_allocator_type(  // NOLINT
     "host_allocator_type", llvm::cl::desc("Specify host allocator type:"),
     llvm::cl::values(
         clEnumValN(tfrt::HostAllocatorType::kMalloc, "malloc", "Malloc."),

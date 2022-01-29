@@ -1,0 +1,29 @@
+name: Clink Format
+
+on: [push, pull_request]
+
+jobs:
+  format_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Update submodules
+        run: git submodule update --init --recursive
+      - name: Check md5sum equality
+        run: |
+          pre_built_md5sum=`find ./ -type f -exec md5sum {} \; | md5sum`
+
+          echo "Running ./tools/format-code.sh"
+          ./tools/format-code.sh
+
+          post_built_md5sum=`find ./ -type f -exec md5sum {} \; | md5sum`
+
+          echo "Pre-formatted md5sum: $pre_built_md5sum"
+          echo "Post-formatted md5sum: $post_built_md5sum"
+          if [ "${pre_built_md5sum}" != "${post_built_md5sum}" ]; then
+            echo "Pre-formatted md5sum and Post-formatted md5sum do not equal."
+            echo "Please format all Clink codes using ./tools/format-code.sh" \
+                "before submitting commits."
+            exit 1
+          fi
