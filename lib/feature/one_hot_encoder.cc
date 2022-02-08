@@ -23,26 +23,38 @@
 
 namespace clink {
 
-tfrt::AsyncValueRef<SparseVector> OneHotEncoderModel::transform(
-    const int value, const int column_index) const {
-  if (column_index >= model_data_.featuresizes_size()) {
-    return tfrt::MakeErrorAsyncValueRef("Column index out of range.");
-  }
+llvm::SmallVector<tfrt::RCReference<tfrt::AsyncValue>, 4>
+OneHotEncoderModel::transform(llvm::ArrayRef<tfrt::AsyncValue *> inputs,
+                              const ExecutionContext &exec_ctx) {
+  auto output = MakeUnconstructedAsyncValueRef<SparseVector>(exec_ctx.host());
+  tfrt::EnqueueWork(
+      exec_ctx, [model = tfrt::FormRef(this), value = inputs[0]->get<int>(),
+                 column_index = inputs[1]->get<int>(),
+                 output = output.CopyRef(), exec_ctx]() {
+        if (column_index >= model->model_data_.featuresizes_size()) {
+          output.SetError("Column index out of range.");
+          return;
+        }
 
-  int len = model_data_.featuresizes(column_index);
-  if (value >= len) {
-    return tfrt::MakeErrorAsyncValueRef("Value out of range.");
-  }
-  if (getDropLast()) {
-    len -= 1;
-  }
+        int len = model->model_data_.featuresizes(column_index);
+        if (value >= len) {
+          output.SetError("Value out of range.");
+          return;
+        }
+        if (model->getDropLast()) {
+          len -= 1;
+        }
 
-  tfrt::AsyncValueRef<SparseVector> vector =
-      tfrt::MakeAvailableAsyncValueRef<SparseVector>(len);
-  if (value < len) {
-    vector->set(value, 1.0);
-  }
-  return vector;
+        SparseVector vector(len);
+        if (value < len) {
+          vector.set(value, 1.0);
+        }
+        output.emplace(std::move(vector));
+      });
+
+  llvm::SmallVector<tfrt::RCReference<tfrt::AsyncValue>, 4> result;
+  result.push_back(std::move(output));
+  return result;
 }
 
 void OneHotEncoderModel::setDropLast(const bool is_droplast) {
