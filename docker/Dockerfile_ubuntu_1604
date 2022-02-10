@@ -27,8 +27,15 @@ RUN echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial main" >> /etc/ap
 
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     apt-get update && \
-    apt-get install -y --allow-unauthenticated --fix-missing bazel clang-11 gcc-8 g++-8 openjdk-8-jdk && \
+    apt-get install -y --allow-unauthenticated --fix-missing bazel clang-11 gcc-8 g++-8 openjdk-8-jdk git && \
     rm -rf /var/lib/apt/lists/* 
 
 RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-11 11 && \
     update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-11 11
+
+RUN git clone --depth 1 https://github.com/flink-extended/clink.git /tmp/clink && \
+    cd /tmp/clink && \
+    git submodule update --init --recursive && \
+    bazel build --disk_cache=~/.cache/bazel @tf_runtime//tools:bef_executor_lite && \
+    bazel build --disk_cache=~/.cache/bazel @tf_runtime//tools:tfrt_translate && \
+    rm -rf /tmp/clink
