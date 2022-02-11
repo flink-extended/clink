@@ -56,7 +56,7 @@ class TemporaryFolder {
       return;
     }
     while ((entry = readdir(dir)) != NULL) {
-      const std::string full_file_name = path + "/" + entry->d_name;
+      const std::string full_file_name = tfrt::StrCat(path, "/", entry->d_name);
       if (stat(full_file_name.c_str(), &st) == -1) continue;
       bool is_directory = (st.st_mode & S_IFDIR) != 0;
       if (is_directory) {
@@ -78,12 +78,16 @@ class TemporaryFolder {
 // data of an Clink operator to a given directory.
 void saveMetaDataModelData(std::string dir_name, nlohmann::json params,
                            google::protobuf::Message &model_data) {
-  std::ofstream params_output(dir_name + "/metadata");
+  std::ofstream params_output(tfrt::StrCat(dir_name, "/metadata"));
   params_output << params;
   params_output.close();
 
-  mkdir((dir_name + "/data").c_str(), S_IRUSR | S_IWUSR);
-  std::ofstream model_data_output(dir_name + "/data/part-0");
+  mkdir(tfrt::StrCat(dir_name, "/data").c_str(), S_IRUSR | S_IWUSR);
+  std::ofstream model_data_output(tfrt::StrCat(dir_name, "/data/modelData"));
+
+  int model_data_len = 0;
+  model_data_output.write((char *)&model_data_len, sizeof(int));
+
   model_data.SerializeToOstream(&model_data_output);
   model_data_output.close();
 }

@@ -73,7 +73,7 @@ std::string getOnlyFileInDirectory(std::string path) {
     return "";
   }
   while ((entry = readdir(dir)) != NULL) {
-    const std::string full_file_name = path + "/" + entry->d_name;
+    const std::string full_file_name = tfrt::StrCat(path, "/", entry->d_name);
     if (stat(full_file_name.c_str(), &st) == -1) continue;
     bool is_directory = (st.st_mode & S_IFDIR) != 0;
     if (!is_directory) {

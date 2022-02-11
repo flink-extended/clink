@@ -63,55 +63,42 @@ void OneHotEncoderModel::setDropLast(const bool is_droplast) {
 
 bool OneHotEncoderModel::getDropLast() const { return params_.is_droplast; }
 
-llvm::Error OneHotEncoderModel::setModelData(
-    const std::string &model_data_str) {
-  OneHotEncoderModelDataProto model_data;
-
-  if (!model_data.ParseFromString(model_data_str)) {
-    return tfrt::MakeStringError("Failed to parse modeldata.");
-  }
-
-  for (int i = 0; i < model_data.featuresizes_size(); i++) {
-    if (model_data.featuresizes(i) <= 0) {
-      return tfrt::MakeStringError(
-          "Model data feature size value must be positive.");
-    }
-  }
-
-  model_data_ = std::move(model_data);
-
-  return llvm::Error::success();
-}
-
 llvm::Expected<tfrt::RCReference<OneHotEncoderModel>> OneHotEncoderModel::load(
     const std::string &path, tfrt::HostContext *host) {
   tfrt::RCReference<OneHotEncoderModel> model =
       TakeRef(host->Construct<OneHotEncoderModel>(host));
 
-  std::ifstream params_input(path + "/metadata");
+  std::ifstream params_input(tfrt::StrCat(path, "/metadata"));
   nlohmann::json params;
   params << params_input;
   std::string is_droplast = params["paramMap"]["dropLast"].get<std::string>();
   model->setDropLast(is_droplast != "false");
   params_input.close();
 
-  std::string model_data_filename = getOnlyFileInDirectory(path + "/data");
+  std::string model_data_filename =
+      getOnlyFileInDirectory(tfrt::StrCat(path, "/data"));
   if (model_data_filename == "") {
     return tfrt::MakeStringError(
-        "Failed to load OneHotEncoderModel: model data directory " + path +
+        "Failed to load OneHotEncoderModel: model data directory ", path,
         "/data does not exist, or it has zero or more than one file.");
   }
 
-  std::ifstream model_data_input(path + "/data/" + model_data_filename);
-  std::string model_data_str((std::istreambuf_iterator<char>(model_data_input)),
-                             std::istreambuf_iterator<char>());
-  llvm::Error err = model->setModelData(std::move(model_data_str));
+  std::ifstream model_data_input(
+      tfrt::StrCat(path, "/data/", model_data_filename));
+  model_data_input.seekg(sizeof(int), model_data_input.beg);
+  if (!model->model_data_.ParseFromIstream(&model_data_input)) {
+    return tfrt::MakeStringError(
+        "Failed to load OneHotEncoderModel: Invalid model data file ", path,
+        "/data/", model_data_filename);
+  }
   model_data_input.close();
 
-  if (err) {
-    return tfrt::MakeStringError(
-        "Failed to load OneHotEncoderModel: invalid model data file " + path +
-        "/data/" + model_data_filename);
+  for (int i = 0; i < model->model_data_.featuresizes_size(); i++) {
+    if (model->model_data_.featuresizes(i) <= 0) {
+      return tfrt::MakeStringError(
+          "Failed to load OneHotEncoderModel: Model "
+          "data feature size value must be positive.");
+    }
   }
 
   return model;
